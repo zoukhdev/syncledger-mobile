@@ -13,22 +13,6 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
-// Fix for old plugins that don't declare a namespace (required by AGP 8+)
-subprojects {
-    afterEvaluate { project ->
-        if (project.hasProperty("android")) {
-            def android = project.extensions.findByName("android")
-            if (android != null && android.namespace == null) {
-                def manifest = project.file("src/main/AndroidManifest.xml")
-                if (manifest.exists()) {
-                    def parsed = new XmlParser().parse(manifest)
-                    android.namespace = parsed.@package
-                }
-            }
-        }
-    }
-}
-
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
