@@ -6,7 +6,7 @@ import '../../../auth/providers/auth_provider.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import '../../scanner/presentation/pages/ocr_scan_page.dart';
+import '../../../scanner/presentation/pages/ocr_scan_page.dart';
 
 class DocumentWorkspace extends ConsumerStatefulWidget {
   final InvoiceModel invoice;
