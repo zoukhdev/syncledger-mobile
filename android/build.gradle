@@ -11,6 +11,11 @@ allprojects {
         google()
         mavenCentral()
     }
+    
+    // Provide fallback versions for legacy plugins
+    ext.compileSdkVersion = 34
+    ext.targetSdkVersion = 34
+    ext.minSdkVersion = 21
 }
 
 rootProject.buildDir = "../build"
