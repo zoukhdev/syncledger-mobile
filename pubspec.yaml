@@ -1,0 +1,74 @@
+name: syncledger
+description: "SyncLedger — Business invoice management for owner & accountant"
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ── State Management ──────────────────────────────────────
+  flutter_riverpod: ^2.6.1
+
+  # ── Backend ───────────────────────────────────────────────
+  supabase_flutter: ^2.8.4
+
+  # ── Navigation ────────────────────────────────────────────
+  go_router: ^14.8.1
+
+  # ── Local Cache (Offline-First) ───────────────────────────
+  isar: ^3.1.0+1
+  isar_flutter_libs: ^3.1.0+1
+  path_provider: ^2.1.5
+
+  # ── UI & Fonts ────────────────────────────────────────────
+  google_fonts: ^6.2.1
+  shimmer: ^3.0.0
+  cached_network_image: ^3.4.1
+  flutter_svg: ^2.0.17
+
+  # ── PDF Viewer ────────────────────────────────────────────
+  pdfx: ^2.2.0
+
+  # ── File Picker & Upload ──────────────────────────────────
+  file_picker: ^8.1.7
+  mime: ^2.0.0
+
+  # ── Android-specific (conditionally imported) ─────────────
+  local_auth: ^2.3.0
+  camera: ^0.11.0+2
+  google_mlkit_text_recognition: ^0.13.1
+  permission_handler: ^11.3.1
+
+  # ── Connectivity & Sync ───────────────────────────────────
+  connectivity_plus: ^6.1.4
+
+  # ── Notifications ─────────────────────────────────────────
+  firebase_core: ^3.13.1
+  firebase_messaging: ^15.2.5
+  flutter_local_notifications: ^18.0.1
+
+  # ── Utilities ─────────────────────────────────────────────
+  intl: ^0.19.0
+  shared_preferences: ^2.3.5
+  uuid: ^4.5.1
+  dio: ^5.8.0+1
+  flutter_animate: ^4.5.0
+  equatable: ^2.0.7
+  dartz: ^0.10.1
+  fl_chart: ^0.68.0
+  pdf: ^3.11.3
+  printing: ^5.14.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.13
+  isar_generator: ^3.1.0+1
+
+flutter:
+  uses-material-design: true
