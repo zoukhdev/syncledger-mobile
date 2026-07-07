@@ -28,17 +28,14 @@ dependencies:
   cached_network_image: ^3.4.1
   flutter_svg: ^2.0.17
 
-  # ── PDF Viewer ────────────────────────────────────────────
-  pdfx: ^2.2.0
-
   # ── File Picker & Upload ──────────────────────────────────
   file_picker: ^8.1.7
   mime: ^2.0.0
 
   # ── Android-specific (conditionally imported) ─────────────
   local_auth: ^2.3.0
-  camera: ^0.11.0+2
-  google_mlkit_text_recognition: ^0.13.1
+  camera: ^0.11.0
+  google_mlkit_text_recognition: ^0.14.0
   permission_handler: ^11.3.1
 
   # ── Connectivity & Sync ───────────────────────────────────
