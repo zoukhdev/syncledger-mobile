@@ -13,6 +13,9 @@ allprojects {
     }
     
     // Provide fallback versions for legacy plugins
+    ext.flutterCompileSdkVersion = 34
+    ext.flutterTargetSdkVersion = 34
+    ext.flutterMinSdkVersion = 21
     ext.compileSdkVersion = 34
     ext.targetSdkVersion = 34
     ext.minSdkVersion = 21
