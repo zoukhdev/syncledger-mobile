@@ -20,8 +20,6 @@ dependencies:
   go_router: ^14.8.1
 
   # ── Local Cache (Offline-First) ───────────────────────────
-  isar: ^3.1.0+1
-  isar_flutter_libs: ^3.1.0+1
   path_provider: ^2.1.5
 
   # ── UI & Fonts ────────────────────────────────────────────
@@ -67,8 +65,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  build_runner: ^2.4.13
-  isar_generator: ^3.1.0+1
 
 flutter:
   uses-material-design: true
