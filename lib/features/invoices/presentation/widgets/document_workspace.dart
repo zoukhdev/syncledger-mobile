@@ -4,6 +4,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/models/invoice_model.dart';
 import '../../../auth/providers/auth_provider.dart';
 import 'dart:async';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import '../../scanner/presentation/pages/ocr_scan_page.dart';
 
 class DocumentWorkspace extends ConsumerStatefulWidget {
   final InvoiceModel invoice;
@@ -189,17 +192,13 @@ class _DocumentWorkspaceState extends ConsumerState<DocumentWorkspace> {
                     ElevatedButton.icon(
                       icon: const Icon(Icons.upload_file),
                       label: const Text('Upload Image'),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Upload feature coming soon')));
-                      },
+                      onPressed: _uploadImage,
                     ),
                     const SizedBox(width: 8),
                     OutlinedButton.icon(
                       icon: const Icon(Icons.document_scanner),
                       label: const Text('Scan Invoice'),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Scan feature coming soon')));
-                      },
+                      onPressed: _scanInvoice,
                     ),
                   ],
                 ),
@@ -267,18 +266,89 @@ class _DocumentWorkspaceState extends ConsumerState<DocumentWorkspace> {
   }
 
   Future<void> _deleteInvoice() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Invoice'),
+        content: const Text('Are you sure you want to delete this invoice? This cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    
     try {
-      await Supabase.instance.client
-          .from('invoices')
-          .delete()
-          .eq('id', widget.invoice.id);
-      
+      await Supabase.instance.client.from('invoices').delete().eq('id', widget.invoice.id);
       if (mounted) {
         widget.onClose();
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invoice deleted')));
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error deleting: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error deleting: $e')));
+      }
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        final file = File(result.files.single.path!);
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${result.files.single.name}';
+        
+        await Supabase.instance.client.storage.from('receipts').upload(fileName, file);
+        final url = Supabase.instance.client.storage.from('receipts').getPublicUrl(fileName);
+        
+        await Supabase.instance.client.from('invoices').update({
+          'document_url': url,
+        }).eq('id', widget.invoice.id);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Image uploaded successfully')));
+          // The real-time listener will pick up the change
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+      }
+    }
+  }
+
+  Future<void> _scanInvoice() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const OcrScanPage()),
+    );
+    
+    if (result != null && result is Map) {
+      try {
+        final imagePath = result['imagePath'] as String;
+        final file = File(imagePath);
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+        
+        await Supabase.instance.client.storage.from('receipts').upload(fileName, file);
+        final url = Supabase.instance.client.storage.from('receipts').getPublicUrl(fileName);
+        
+        await Supabase.instance.client.from('invoices').update({
+          'document_url': url,
+        }).eq('id', widget.invoice.id);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Scan uploaded successfully')));
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Scan upload failed: $e')));
+        }
+      }
     }
   }
 }
