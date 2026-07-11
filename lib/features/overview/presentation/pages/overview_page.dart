@@ -96,11 +96,20 @@ class OverviewPage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildMetricCard(context, 'Total Collected Revenue', data['revenue'], Icons.attach_money, Colors.green),
-                const SizedBox(height: 16),
-                _buildMetricCard(context, 'Pending Receivables', data['receivables'], Icons.arrow_downward, Colors.blue),
-                const SizedBox(height: 16),
-                _buildMetricCard(context, 'Pending Payables', data['payables'], Icons.arrow_upward, Colors.orange),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final cardWidth = (constraints.maxWidth - 16) / 2;
+                    return Wrap(
+                      spacing: 16,
+                      runSpacing: 16,
+                      children: [
+                        _buildMetricCard(context, 'Total Collected Revenue', data['revenue'], Icons.attach_money, Colors.green, cardWidth),
+                        _buildMetricCard(context, 'Pending Receivables', data['receivables'], Icons.arrow_downward, Colors.blue, cardWidth),
+                        _buildMetricCard(context, 'Pending Payables', data['payables'], Icons.arrow_upward, Colors.orange, cardWidth),
+                      ],
+                    );
+                  },
+                ),
                 const SizedBox(height: 32),
                 Text('Revenue (Last 7 Days)', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 16),
@@ -178,8 +187,10 @@ class OverviewPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildMetricCard(BuildContext context, String title, double value, IconData icon, Color color) {
-    return Card(
+  Widget _buildMetricCard(BuildContext context, String title, double value, IconData icon, Color color, [double? width]) {
+    return SizedBox(
+      width: width,
+      child: Card(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -196,6 +207,7 @@ class OverviewPage extends ConsumerWidget {
             Text('${value.toStringAsFixed(2)} DZD', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
           ],
         ),
+      ),
       ),
     );
   }

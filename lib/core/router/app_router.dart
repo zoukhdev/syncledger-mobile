@@ -45,9 +45,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/registers',
         builder: (context, state) => const RegistersPage(),
       ),
-      StatefulShellRoute.indexedStack(
+      StatefulShellRoute(
         builder: (context, state, navigationShell) {
-          return DashboardShell(navigationShell: navigationShell);
+          return navigationShell;
+        },
+        navigatorContainerBuilder: (context, navigationShell, children) {
+          return DashboardShell(navigationShell: navigationShell, children: children);
         },
         branches: [
           StatefulShellBranch(
