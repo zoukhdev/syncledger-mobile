@@ -63,8 +63,10 @@ class RegistersPage extends ConsumerWidget {
                     children: [
                       Text(contract.title, style: Theme.of(context).textTheme.headlineSmall),
                       const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Wrap(
+                        spacing: 24,
+                        runSpacing: 16,
+                        alignment: WrapAlignment.start,
                         children: [
                           _buildSummaryItem(context, 'Budget', contract.totalAmount),
                           _buildSummaryItem(context, 'Paid Out', totalPaid),
@@ -73,41 +75,42 @@ class RegistersPage extends ConsumerWidget {
                       ),
                       const Divider(height: 32),
                       Text('Payment Phases', style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       if (phases.isEmpty)
                         const Text('No phases defined for this contract.', style: TextStyle(color: Colors.grey))
                       else
                         ...phases.map((phase) {
-                          return Container(
+                          return Card(
+                            elevation: 2,
                             margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Phase ${phase.phaseNumber}: ${phase.phaseName}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text('Allocated:', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                    Text('${phase.phaseTotal.toStringAsFixed(2)} DZD', style: const TextStyle(fontSize: 12)),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text('Net Remaining:', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                    Text(
-                                      '${phase.remainingBalance.toStringAsFixed(2)} DZD', 
-                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: phase.remainingBalance >= 0 ? Colors.green : Colors.red),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Phase ${phase.phaseNumber}: ${phase.phaseName}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('Allocated:', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                                      Text('${phase.phaseTotal.toStringAsFixed(2)} DZD', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('Net Remaining:', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                                      Text(
+                                        '${phase.remainingBalance.toStringAsFixed(2)} DZD', 
+                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: phase.remainingBalance >= 0 ? Colors.green : Colors.red),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         }),
