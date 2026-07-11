@@ -23,7 +23,13 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
   late DateTime _dueDate;
   String? _documentUrl;
   
+  List<Map<String, dynamic>> _contracts = [];
+  List<Map<String, dynamic>> _phases = [];
+  String? _selectedContractId;
+  String? _selectedPhaseId;
+  
   bool _isLoading = false;
+  bool _isLoadingData = true;
 
   @override
   void initState() {
@@ -34,6 +40,34 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
     _invoiceDate = widget.invoice?.date ?? DateTime.now();
     _dueDate = widget.invoice?.dueDate ?? DateTime.now();
     _documentUrl = widget.invoice?.documentUrl;
+    
+    _selectedContractId = widget.invoice?.contractId.isNotEmpty == true ? widget.invoice!.contractId : null;
+    _selectedPhaseId = widget.invoice?.paymentPhaseId.isNotEmpty == true ? widget.invoice!.paymentPhaseId : null;
+    
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      final connectivity = await Connectivity().checkConnectivity();
+      if (connectivity.contains(ConnectivityResult.none)) {
+        // If offline, we might not be able to fetch them unless cached.
+        // Assuming simple online fetch for now.
+        if (mounted) setState(() => _isLoadingData = false);
+        return;
+      }
+      final contractsRes = await Supabase.instance.client.from('contracts').select('id, contract_title');
+      final phasesRes = await Supabase.instance.client.from('payment_phases').select('id, contract_id, phase_name');
+      if (mounted) {
+        setState(() {
+          _contracts = List<Map<String, dynamic>>.from(contractsRes);
+          _phases = List<Map<String, dynamic>>.from(phasesRes);
+          _isLoadingData = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingData = false);
+    }
   }
 
   @override
@@ -45,6 +79,10 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
 
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
+      if (_selectedContractId == null || _selectedPhaseId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a contract and a phase.')));
+        return;
+      }
       setState(() => _isLoading = true);
 
       try {
@@ -55,6 +93,8 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
           'invoice_date': _invoiceDate.toIso8601String(),
           'due_date': _dueDate.toIso8601String(),
           'currency': 'DZD',
+          'contract_id': _selectedContractId,
+          'payment_phase_id': _selectedPhaseId,
           if (_documentUrl != null) 'document_url': _documentUrl,
         };
 
@@ -107,6 +147,39 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (_isLoadingData)
+                  const Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator())
+                else ...[
+                  DropdownButtonFormField<String>(
+                    value: _selectedContractId,
+                    decoration: const InputDecoration(labelText: 'Contract', border: OutlineInputBorder()),
+                    items: _contracts.map((c) => DropdownMenuItem<String>(
+                      value: c['id'] as String,
+                      child: Text(c['contract_title'] as String),
+                    )).toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedContractId = val;
+                        _selectedPhaseId = null; // Reset phase when contract changes
+                      });
+                    },
+                    validator: (val) => val == null ? 'Required' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedPhaseId,
+                    decoration: const InputDecoration(labelText: 'Payment Phase', border: OutlineInputBorder()),
+                    items: _phases.where((p) => p['contract_id'] == _selectedContractId).map((p) => DropdownMenuItem<String>(
+                      value: p['id'] as String,
+                      child: Text(p['phase_name'] as String),
+                    )).toList(),
+                    onChanged: (val) {
+                      setState(() => _selectedPhaseId = val);
+                    },
+                    validator: (val) => val == null ? 'Required' : null,
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 DropdownButtonFormField<String>(
                   value: _invoiceType,
                   decoration: const InputDecoration(labelText: 'Type', border: OutlineInputBorder()),

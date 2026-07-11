@@ -9,6 +9,8 @@ class InvoiceModel {
   final String? documentUrl;
   final String? paymentProofUrl;
   final String? notes;
+  final String contractId;
+  final String paymentPhaseId;
 
   InvoiceModel({
     required this.id,
@@ -21,6 +23,8 @@ class InvoiceModel {
     this.documentUrl,
     this.paymentProofUrl,
     this.notes,
+    required this.contractId,
+    required this.paymentPhaseId,
   });
 
   factory InvoiceModel.fromJson(Map<String, dynamic> json) {
@@ -33,6 +37,8 @@ class InvoiceModel {
       dueDate: DateTime.parse(json['due_date'] as String),
       status: json['status'] as String,
       documentUrl: json['document_url'] as String?,
+      contractId: json['contract_id'] as String? ?? '',
+      paymentPhaseId: json['payment_phase_id'] as String? ?? '',
     );
   }
 }
