@@ -11,6 +11,7 @@ import '../widgets/status_badge.dart';
 import '../../domain/models/invoice_model.dart';
 import '../../utils/pdf_generator.dart';
 import '../../../auth/providers/auth_provider.dart';
+import '../../../core/localization/locale_provider.dart';
 
 final invoicesProvider = FutureProvider<List<InvoiceModel>>((ref) async {
   final prefs = await SharedPreferences.getInstance();
