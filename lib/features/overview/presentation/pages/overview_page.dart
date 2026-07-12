@@ -119,8 +119,17 @@ class OverviewPage extends ConsumerWidget {
                 const SizedBox(height: 16),
                 _buildChart(context, data['chart_spots']),
                 const SizedBox(height: 32),
-                Text('Recent Contracts', style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Active Contracts', style: Theme.of(context).textTheme.titleLarge),
+                    TextButton(
+                      onPressed: () => context.push('/contracts'),
+                      child: const Text('View All'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 _buildContractsList(context, contractsState, theme),
               ],
             ),

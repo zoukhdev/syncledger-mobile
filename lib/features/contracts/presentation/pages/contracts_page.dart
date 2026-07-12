@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/contracts_provider.dart';
+import '../widgets/create_contract_dialog.dart';
 
 class ContractsPage extends ConsumerWidget {
   const ContractsPage({super.key});
@@ -14,6 +15,15 @@ class ContractsPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Contracts'),
         centerTitle: true,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => const CreateContractDialog(),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
       body: contractsState.when(
         data: (contracts) {
