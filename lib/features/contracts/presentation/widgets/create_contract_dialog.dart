@@ -15,7 +15,10 @@ class _CreateContractDialogState extends ConsumerState<CreateContractDialog> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
+  final _documentUrlController = TextEditingController();
   String? _selectedContractorId;
+  DateTime? _startDate = DateTime.now();
+  DateTime? _endDate = DateTime.now().add(const Duration(days: 30));
   bool _isLoading = false;
 
   Future<void> _submit() async {
@@ -33,6 +36,9 @@ class _CreateContractDialogState extends ConsumerState<CreateContractDialog> {
         'contract_title': _titleController.text.trim(),
         'contractor_id': _selectedContractorId,
         'total_amount': double.parse(_amountController.text.trim()),
+        'start_date': _startDate!.toIso8601String().split('T')[0],
+        'end_date': _endDate!.toIso8601String().split('T')[0],
+        'document_url': _documentUrlController.text.trim().isEmpty ? null : _documentUrlController.text.trim(),
         'status': 'active', // default status
       });
 
@@ -52,6 +58,7 @@ class _CreateContractDialogState extends ConsumerState<CreateContractDialog> {
   void dispose() {
     _titleController.dispose();
     _amountController.dispose();
+    _documentUrlController.dispose();
     super.dispose();
   }
 
@@ -105,6 +112,52 @@ class _CreateContractDialogState extends ConsumerState<CreateContractDialog> {
                   if (double.tryParse(val) == null) return 'Must be a valid number';
                   return null;
                 },
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: _startDate ?? DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (date != null) setState(() => _startDate = date);
+                      },
+                      child: InputDecorator(
+                        decoration: const InputDecoration(labelText: 'Start Date', border: OutlineInputBorder()),
+                        child: Text(_startDate != null ? _startDate!.toIso8601String().split('T')[0] : 'Select Date'),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: _endDate ?? DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (date != null) setState(() => _endDate = date);
+                      },
+                      child: InputDecorator(
+                        decoration: const InputDecoration(labelText: 'End Date', border: OutlineInputBorder()),
+                        child: Text(_endDate != null ? _endDate!.toIso8601String().split('T')[0] : 'Select Date'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _documentUrlController,
+                decoration: const InputDecoration(labelText: 'Document URL (Optional)', border: OutlineInputBorder()),
+                keyboardType: TextInputType.url,
               ),
             ],
           ),

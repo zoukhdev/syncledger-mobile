@@ -1,26 +1,23 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
+import '../database/db_helper.dart';
 
 class SyncService {
-  static const _queueKey = 'offline_mutation_queue';
-
-  /// Adds a mutation to the offline queue
-  static Future<void> queueMutation(Map<String, dynamic> data, {String? imagePath}) async {
-    final prefs = await SharedPreferences.getInstance();
-    final queueJson = prefs.getString(_queueKey);
-    List<dynamic> queue = queueJson != null ? jsonDecode(queueJson) : [];
-    
-    queue.add({
+  /// Adds a mutation to the offline SQLite queue
+  static Future<void> queueMutation(Map<String, dynamic> data, {String? imagePath, String tableName = 'invoices'}) async {
+    final payload = {
       'data': data,
       'imagePath': imagePath,
-      'timestamp': DateTime.now().toIso8601String(),
-    });
-
-    await prefs.setString(_queueKey, jsonEncode(queue));
+    };
+    
+    await DatabaseHelper.instance.queueAction(
+      'INSERT', 
+      tableName, 
+      jsonEncode(payload),
+    );
   }
 
   /// Attempts to sync all queued mutations to Supabase
@@ -28,45 +25,48 @@ class SyncService {
     final connectivity = await Connectivity().checkConnectivity();
     if (connectivity.contains(ConnectivityResult.none)) return;
 
-    final prefs = await SharedPreferences.getInstance();
-    final queueJson = prefs.getString(_queueKey);
-    if (queueJson == null) return;
-
-    List<dynamic> queue = jsonDecode(queueJson);
+    final queue = await DatabaseHelper.instance.getSyncQueue();
     if (queue.isEmpty) return;
 
     debugPrint('Syncing ${queue.length} offline mutations...');
-    
-    List<dynamic> failedMutations = [];
 
     for (var item in queue) {
+      final id = item['id'] as int;
+      final action = item['action'] as String;
+      final tableName = item['table_name'] as String;
+      final payloadData = jsonDecode(item['payload'] as String) as Map<String, dynamic>;
+      
       try {
-        final data = Map<String, dynamic>.from(item['data']);
-        final imagePath = item['imagePath'] as String?;
-        
-        // 1. Upload image if exists
-        if (imagePath != null) {
-          final file = File(imagePath);
-          if (await file.exists()) {
-            final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-            await Supabase.instance.client.storage.from('receipts').upload(fileName, file);
-            data['document_url'] = Supabase.instance.client.storage.from('receipts').getPublicUrl(fileName);
+        final data = Map<String, dynamic>.from(payloadData['data']);
+        final imagePath = payloadData['imagePath'] as String?;
+
+        if (action == 'INSERT') {
+          // 1. Upload image if exists
+          if (imagePath != null) {
+            final file = File(imagePath);
+            if (await file.exists()) {
+              final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+              await Supabase.instance.client.storage.from('receipts').upload(fileName, file);
+              data['document_url'] = Supabase.instance.client.storage.from('receipts').getPublicUrl(fileName);
+            }
           }
+          
+          // 2. Insert to Supabase
+          await Supabase.instance.client.from(tableName).insert(data);
+        } else if (action == 'UPDATE') {
+           final recordId = item['record_id'] as String;
+           await Supabase.instance.client.from(tableName).update(data).eq('id', recordId);
+        } else if (action == 'DELETE') {
+           final recordId = item['record_id'] as String;
+           await Supabase.instance.client.from(tableName).delete().eq('id', recordId);
         }
         
-        // 2. Insert to Supabase
-        await Supabase.instance.client.from('invoices').insert(data);
+        // Remove from local queue if successful
+        await DatabaseHelper.instance.removeQueueItem(id);
       } catch (e) {
         debugPrint('Failed to sync mutation: $e');
-        failedMutations.add(item); // Keep it in queue for next time
+        // It stays in the queue to be retried
       }
-    }
-
-    // Update queue with only the failed items
-    if (failedMutations.isEmpty) {
-      await prefs.remove(_queueKey);
-    } else {
-      await prefs.setString(_queueKey, jsonEncode(failedMutations));
     }
   }
 }

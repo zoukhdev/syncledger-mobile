@@ -77,11 +77,13 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
             context.push('/registers');
           } else if (index == 1) {
             context.push('/contracts');
-          } else if (isOwner && index == 2) {
-            context.push('/audit');
+          } else if (index == 2) {
+            context.push('/caisse');
           } else if (isOwner && index == 3) {
+            context.push('/audit');
+          } else if (isOwner && index == 4) {
             context.push('/staff');
-          } else if ((isOwner && index == 4) || (!isOwner && index == 2)) {
+          } else if ((isOwner && index == 5) || (!isOwner && index == 3)) {
             context.push('/settings');
           }
         },
@@ -127,6 +129,11 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
               icon: const Icon(Icons.description_outlined),
               selectedIcon: const Icon(Icons.description),
               label: const Text('Contracts'),
+            ),
+            NavigationDrawerDestination(
+              icon: const Icon(Icons.archive_outlined),
+              selectedIcon: const Icon(Icons.archive),
+              label: const Text('Caisse (Cash Box)'),
             ),
             if (userState.value?.role == 'owner') ...[
               NavigationDrawerDestination(

@@ -23,6 +23,9 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
   late DateTime _dueDate;
   String? _documentUrl;
   
+  num _tvaRate = 19;
+  String _paymentMethod = 'bank_transfer';
+  
   List<Map<String, dynamic>> _contracts = [];
   List<Map<String, dynamic>> _phases = [];
   String? _selectedContractId;
@@ -95,6 +98,12 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
           'currency': 'DZD',
           'contract_id': _selectedContractId,
           'payment_phase_id': _selectedPhaseId,
+          'tva_rate': _tvaRate,
+          'tva_amount': double.parse(_amountController.text) * (_tvaRate / 100),
+          'payment_method': _paymentMethod,
+          'timbre_fiscal': (_paymentMethod == 'cash' && double.parse(_amountController.text) > 100000) 
+              ? (double.parse(_amountController.text) * 0.01).clamp(0, 10000) 
+              : 0,
           if (_documentUrl != null) 'document_url': _documentUrl,
         };
 
@@ -200,7 +209,7 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _amountController,
-                  decoration: const InputDecoration(labelText: 'Amount (DZD)', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(labelText: 'Amount (HT)', border: OutlineInputBorder()),
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Required';
@@ -209,6 +218,42 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                     if (numValue <= 0) return 'Must be greater than 0';
                     return null;
                   },
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<num>(
+                        value: _tvaRate,
+                        decoration: const InputDecoration(labelText: 'TVA Rate', border: OutlineInputBorder()),
+                        items: const [
+                          DropdownMenuItem(value: 0, child: Text('0%')),
+                          DropdownMenuItem(value: 9, child: Text('9%')),
+                          DropdownMenuItem(value: 19, child: Text('19%')),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) setState(() => _tvaRate = val);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: _paymentMethod,
+                        decoration: const InputDecoration(labelText: 'Payment Method', border: OutlineInputBorder()),
+                        items: const [
+                          DropdownMenuItem(value: 'bank_transfer', child: Text('Bank Transfer')),
+                          DropdownMenuItem(value: 'check', child: Text('Check')),
+                          DropdownMenuItem(value: 'cash', child: Text('Espèces (Cash)')),
+                          DropdownMenuItem(value: 'baridimob', child: Text('BaridiMob / Edahabia')),
+                          DropdownMenuItem(value: 'wimpay', child: Text('Wimpay (CPA / BNA)')),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) setState(() => _paymentMethod = val);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 Row(

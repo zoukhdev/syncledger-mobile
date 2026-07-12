@@ -74,6 +74,35 @@ class SettingsPage extends ConsumerWidget {
             },
             secondary: const Icon(Icons.dark_mode_outlined),
           ),
+          const Divider(),
+          const _SectionHeader(title: 'Localization & Algerian Settings'),
+          ListTile(
+            title: const Text('Tax & Fiscal Rules'),
+            subtitle: const Text('Timbre Fiscal, TVA rates'),
+            leading: const Icon(Icons.calculate_outlined),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              // TODO: Navigate to TaxSettingsPage
+            },
+          ),
+          ListTile(
+            title: const Text('Exchange Rates'),
+            subtitle: const Text('Official & Parallel rates'),
+            leading: const Icon(Icons.currency_exchange),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              // TODO: Navigate to ExchangeRatesPage
+            },
+          ),
+          ListTile(
+            title: const Text('Company Documents & Stamp'),
+            subtitle: const Text('Upload Cachet & Signature'),
+            leading: const Icon(Icons.domain_verification),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              // TODO: Navigate to CompanyDocsPage
+            },
+          ),
           const SizedBox(height: 32),
         ],
       ),

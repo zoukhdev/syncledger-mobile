@@ -13,6 +13,7 @@ import '../../features/staff/presentation/pages/staff_page.dart';
 import '../../features/audit/presentation/pages/audit_logs_page.dart';
 import '../../features/registers/presentation/pages/registers_page.dart';
 import '../../features/contracts/presentation/pages/contracts_page.dart';
+import '../../features/caisse/presentation/pages/caisse_page.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -49,6 +50,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/contracts',
         builder: (context, state) => const ContractsPage(),
+      ),
+      GoRoute(
+        path: '/caisse',
+        builder: (context, state) => const CaissePage(),
       ),
       StatefulShellRoute(
         builder: (context, state, navigationShell) {

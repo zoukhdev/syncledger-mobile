@@ -5,6 +5,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'core/sync/sync_service.dart';
 import 'core/router/app_router.dart';
+import 'core/localization/locale_provider.dart';
 
 // IMPORTANT: Replace with actual values injected via --dart-define or env file in a real app
 const String supabaseUrl = 'https://ptcjueqjulccrmfuyefb.supabase.co';
@@ -35,12 +36,14 @@ class SyncLedgerApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final goRouter = ref.watch(appRouterProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: 'SyncLedger',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
+      locale: locale,
       routerConfig: goRouter,
       debugShowCheckedModeBanner: false,
     );

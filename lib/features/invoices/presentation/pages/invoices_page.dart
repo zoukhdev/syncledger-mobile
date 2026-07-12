@@ -48,6 +48,7 @@ class InvoicesPage extends ConsumerStatefulWidget {
 class _InvoicesPageState extends ConsumerState<InvoicesPage> {
   InvoiceModel? _selectedInvoice;
   String _activeTab = 'approval';
+  String _pdfLang = 'fr';
   
   late final Map<ShortcutActivator, Intent> _shortcuts;
   late final Map<Type, Action<Intent>> _actions;
@@ -123,6 +124,30 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
         appBar: AppBar(
           title: const Text('Ledger'),
           actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: DropdownButtonHideUnderline(
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    final currentLocale = ref.watch(localeProvider).languageCode;
+                    return DropdownButton<String>(
+                      value: currentLocale,
+                      icon: const Icon(Icons.language, color: Colors.grey),
+                      items: const [
+                        DropdownMenuItem(value: 'fr', child: Text('FR')),
+                        DropdownMenuItem(value: 'en', child: Text('EN')),
+                        DropdownMenuItem(value: 'ar', child: Text('AR')),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) {
+                          ref.read(localeProvider.notifier).setLocale(val);
+                        }
+                      },
+                    );
+                  }
+                ),
+              ),
+            ),
             ElevatedButton.icon(
               icon: const Icon(Icons.add),
               label: const Text('New Invoice (Ctrl+N)'),
@@ -309,7 +334,10 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
                                           icon: const Icon(Icons.more_vert),
                                           itemBuilder: (context) => [
                                             PopupMenuItem(
-                                              onTap: () => PdfGenerator.generateAndShareInvoice(invoice),
+                                              onTap: () {
+                                                final lang = ref.read(localeProvider).languageCode;
+                                                PdfGenerator.generateAndShareInvoice(invoice, lang: lang);
+                                              },
                                               child: const Text('Export PDF'),
                                             ),
                                             if (role == 'owner' || role == 'accountant')

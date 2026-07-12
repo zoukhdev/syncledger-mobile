@@ -11,6 +11,8 @@ class InvoiceModel {
   final String? notes;
   final String contractId;
   final String paymentPhaseId;
+  final String? documentType;
+  final String? paymentMethod;
 
   InvoiceModel({
     required this.id,
@@ -25,6 +27,8 @@ class InvoiceModel {
     this.notes,
     required this.contractId,
     required this.paymentPhaseId,
+    this.documentType,
+    this.paymentMethod,
   });
 
   factory InvoiceModel.fromJson(Map<String, dynamic> json) {
@@ -39,6 +43,8 @@ class InvoiceModel {
       documentUrl: json['document_url'] as String?,
       contractId: json['contract_id'] as String? ?? '',
       paymentPhaseId: json['payment_phase_id'] as String? ?? '',
+      documentType: json['document_type'] as String?,
+      paymentMethod: json['payment_method'] as String?,
     );
   }
 }
