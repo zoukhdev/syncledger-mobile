@@ -75,11 +75,13 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
           final isOwner = userState.value?.role == 'owner';
           if (index == 0) {
             context.push('/registers');
-          } else if (isOwner && index == 1) {
-            context.push('/audit');
+          } else if (index == 1) {
+            context.push('/contracts');
           } else if (isOwner && index == 2) {
+            context.push('/audit');
+          } else if (isOwner && index == 3) {
             context.push('/staff');
-          } else if ((isOwner && index == 3) || (!isOwner && index == 1)) {
+          } else if ((isOwner && index == 4) || (!isOwner && index == 2)) {
             context.push('/settings');
           }
         },
@@ -120,6 +122,11 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
               icon: const Icon(Icons.wallet_outlined),
               selectedIcon: const Icon(Icons.wallet),
               label: const Text('Cash Registers'),
+            ),
+            NavigationDrawerDestination(
+              icon: const Icon(Icons.description_outlined),
+              selectedIcon: const Icon(Icons.description),
+              label: const Text('Contracts'),
             ),
             if (userState.value?.role == 'owner') ...[
               NavigationDrawerDestination(
