@@ -6,6 +6,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
+import '../../../contracts/providers/contracts_provider.dart';
 
 final overviewProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final prefs = await SharedPreferences.getInstance();
@@ -84,6 +86,8 @@ class OverviewPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncData = ref.watch(overviewProvider);
+    final contractsState = ref.watch(contractsProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Overview')),
@@ -115,6 +119,9 @@ class OverviewPage extends ConsumerWidget {
                 const SizedBox(height: 16),
                 _buildChart(context, data['chart_spots']),
                 const SizedBox(height: 32),
+                Text('Recent Contracts', style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 16),
+                _buildContractsList(context, contractsState, theme),
               ],
             ),
           ),
@@ -200,7 +207,14 @@ class OverviewPage extends ConsumerWidget {
               children: [
                 Icon(icon, color: color, size: 24),
                 const SizedBox(width: 8),
-                Text(title, style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
+                Expanded(
+                  child: Text(
+                    title, 
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -208,6 +222,48 @@ class OverviewPage extends ConsumerWidget {
           ],
         ),
       ),
+      ),
+    );
+  }
+
+  Widget _buildContractsList(BuildContext context, AsyncValue contractsState, ThemeData theme) {
+    return contractsState.when(
+      data: (contracts) {
+        if (contracts.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text('No active contracts found.'),
+          );
+        }
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: contracts.length > 5 ? 5 : contracts.length,
+          itemBuilder: (context, index) {
+            final contract = contracts[index];
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                title: Text(contract.contractTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text('${contract.contractorName ?? 'Unknown Vendor'} • ${contract.totalAmount.toStringAsFixed(2)} DZD',
+                    style: TextStyle(color: theme.colorScheme.primary)),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  context.push('/contracts');
+                },
+              ),
+            );
+          },
+        );
+      },
+      loading: () => const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: CircularProgressIndicator(),
+      ),
+      error: (error, stack) => Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text('Error: $error'),
       ),
     );
   }

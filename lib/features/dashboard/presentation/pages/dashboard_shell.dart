@@ -171,9 +171,9 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
             label: 'Overview',
           ),
           NavigationDestination(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            selectedIcon: Icon(Icons.account_balance_wallet),
-            label: 'Ledger',
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long),
+            label: 'Invoices',
           ),
           NavigationDestination(
             icon: Icon(Icons.people_alt_outlined),
