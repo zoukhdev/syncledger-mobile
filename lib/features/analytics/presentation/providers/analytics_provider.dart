@@ -34,7 +34,7 @@ final analyticsProvider = FutureProvider<AnalyticsData>((ref) async {
   
   final response = await supabase
       .from('invoices')
-      .select('id, amount, status, invoice_type, invoice_date, due_date, contractor_id, contractors(name)');
+      .select('id, amount, status, invoice_type, invoice_date, due_date, contractor_id, contractors(company_name)');
       
   final invoices = response as List<dynamic>;
 
@@ -86,8 +86,8 @@ final analyticsProvider = FutureProvider<AnalyticsData>((ref) async {
       }
       
       if (inv['invoice_type'] == 'payable') {
-        final name = (inv['contractors'] != null && inv['contractors']['name'] != null) 
-            ? inv['contractors']['name'] 
+        final name = (inv['contractors'] != null && inv['contractors']['company_name'] != null) 
+            ? inv['contractors']['company_name'] 
             : 'Unknown';
         contractorSpend[name] = (contractorSpend[name] ?? 0) + amount;
       }

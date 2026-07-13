@@ -4,6 +4,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
+import 'tax_settings_page.dart';
+import 'exchange_rates_page.dart';
+import 'company_docs_page.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -164,7 +167,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               leading: const Icon(Icons.calculate_outlined),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                // TODO: Navigate to TaxSettingsPage
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const TaxSettingsPage()));
               },
             ),
             ListTile(
@@ -173,7 +176,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               leading: const Icon(Icons.currency_exchange),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                // TODO: Navigate to ExchangeRatesPage
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const ExchangeRatesPage()));
               },
             ),
             ListTile(
@@ -182,7 +185,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               leading: const Icon(Icons.domain_verification),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                // TODO: Navigate to CompanyDocsPage
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const CompanyDocsPage()));
               },
             ),
           ],

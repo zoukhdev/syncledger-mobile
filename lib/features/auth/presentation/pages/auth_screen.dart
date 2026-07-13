@@ -61,8 +61,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         );
         
         if (didAuthenticate) {
-           if (isAutoLogin && mounted) {
+           final session = Supabase.instance.client.auth.currentSession;
+           if (session != null && mounted) {
              context.go('/overview');
+           } else if (mounted && !isAutoLogin) {
+             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No active session. Please login with email first.')));
            }
         } else {
            if (isAutoLogin && mounted) {
@@ -70,9 +73,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
              await Supabase.instance.client.auth.signOut();
            }
         }
-      } else if (isAutoLogin && mounted) {
-        // Device doesn't support biometrics, just let them in if session is valid
-        context.go('/overview');
+      } else {
+        if (isAutoLogin && mounted) {
+          context.go('/overview');
+        } else if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Biometrics not supported on this device.')));
+        }
       }
     } catch (e) {
       debugPrint('Biometric error: $e');

@@ -96,7 +96,7 @@ class PdfReportGenerator {
                 data: invoicesList.map((inv) => [
                   inv['invoice_date'] ?? '-',
                   inv['invoice_type'] == 'receivable' ? l10n.revenue : l10n.expense,
-                  (inv['contractors'] != null ? inv['contractors']['name'] : l10n.unknown),
+                  (inv['contractors'] != null ? inv['contractors']['company_name'] : l10n.unknown),
                   inv['status']?.toString().replaceAll('_', ' ') ?? '-',
                   formatCurrency.format(double.tryParse(inv['amount'].toString()) ?? 0),
                 ]).toList(),

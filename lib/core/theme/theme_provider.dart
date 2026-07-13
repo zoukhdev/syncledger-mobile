@@ -15,7 +15,7 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
     final prefs = await SharedPreferences.getInstance();
     final isDark = prefs.getBool('is_dark');
     if (isDark == null) {
-      state = ThemeMode.system;
+      state = ThemeMode.light;
     } else {
       state = isDark ? ThemeMode.dark : ThemeMode.light;
     }

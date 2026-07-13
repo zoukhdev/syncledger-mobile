@@ -136,9 +136,10 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
     
     return Dialog(
       insetPadding: const EdgeInsets.all(16),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 800),
-        child: Padding(
+      child: SafeArea(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800, maxHeight: 800),
+          child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
@@ -291,6 +292,7 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
           ),
         ),
       ),
+    ),
     );
   }
 }
