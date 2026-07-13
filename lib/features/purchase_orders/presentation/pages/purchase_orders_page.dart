@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/purchase_orders_provider.dart';
+import '../widgets/new_purchase_order_dialog.dart';
 
 class PurchaseOrdersPage extends ConsumerWidget {
   const PurchaseOrdersPage({super.key});
@@ -38,7 +39,10 @@ class PurchaseOrdersPage extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Open Create PO Dialog
+          showDialog(
+            context: context,
+            builder: (context) => const NewPurchaseOrderDialog(),
+          );
         },
         child: const Icon(Icons.add),
       ),
