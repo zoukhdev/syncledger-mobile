@@ -12,7 +12,7 @@ class DocumentsSection extends ConsumerWidget {
   const DocumentsSection({super.key, required this.entityId, required this.entityType});
 
   Future<void> _uploadDocument(BuildContext context, WidgetRef ref) async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg'],
     );
@@ -48,7 +48,7 @@ class DocumentsSection extends ConsumerWidget {
                       );
                       if (d != null) setState(() => expiryDate = d);
                     },
-                    child: Text(expiryDate == null ? 'Set Expiry Date' : 'Exp: \${expiryDate!.toIso8601String().split('T')[0]}'),
+                    child: Text(expiryDate == null ? 'Set Expiry Date' : 'Exp: ${expiryDate!.toIso8601String().split('T')[0]}'),
                   )
                 ],
               ),
@@ -127,7 +127,7 @@ class DocumentsSection extends ConsumerWidget {
                         Text(doc.createdAt.toIso8601String().split('T')[0]),
                         if (doc.expiryDate != null)
                           Text(
-                            'Exp: \${doc.expiryDate!.toIso8601String().split('T')[0]}',
+                            'Exp: ${doc.expiryDate!.toIso8601String().split('T')[0]}',
                             style: TextStyle(
                               color: isExpired ? Colors.red : isExpiringSoon ? Colors.orange : Colors.grey,
                               fontWeight: (isExpired || isExpiringSoon) ? FontWeight.bold : FontWeight.normal,

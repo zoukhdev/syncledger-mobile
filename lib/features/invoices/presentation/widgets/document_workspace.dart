@@ -437,9 +437,9 @@ class _DocumentWorkspaceState extends ConsumerState<DocumentWorkspace> {
 
   Future<void> _uploadImage() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: false,
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg'],
       );
 
       if (result != null && result.files.single.path != null) {

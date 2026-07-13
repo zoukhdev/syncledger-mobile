@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../domain/models/document_model.dart';
+import '../../../../domain/models/document_model.dart';
 import 'package:uuid/uuid.dart';
 
 final documentsProvider = FutureProvider.family<List<DocumentModel>, String>((ref, entityId) async {

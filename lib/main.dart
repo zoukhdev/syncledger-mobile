@@ -30,8 +30,7 @@ void main() async {
   }
 
   try {
-    await NotificationService.initialize();
-    await NotificationService.scheduleDocumentExpiryNotifications();
+    await NotificationService().init();
   } catch (e) {
     debugPrint('Notification service failed to initialize: $e');
   }
