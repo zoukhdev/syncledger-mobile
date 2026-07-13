@@ -106,12 +106,14 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
           } else if (index == 1) {
             context.push('/contracts');
           } else if (index == 2) {
+            context.push('/purchase-orders');
+          } else if (index == 3) {
             context.push('/caisse');
-          } else if (isOwner && index == 3) {
-            context.push('/audit');
           } else if (isOwner && index == 4) {
+            context.push('/audit');
+          } else if (isOwner && index == 5) {
             context.push('/staff');
-          } else if ((isOwner && index == 5) || (!isOwner && index == 3)) {
+          } else if ((isOwner && index == 6) || (!isOwner && index == 4)) {
             context.push('/settings');
           }
         },
@@ -157,6 +159,11 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
               icon: const Icon(Icons.description_outlined),
               selectedIcon: const Icon(Icons.description),
               label: Text(AppLocalizations.of(context)?.contracts ?? 'Contracts'),
+            ),
+            const NavigationDrawerDestination(
+              icon: Icon(Icons.shopping_cart_outlined),
+              selectedIcon: Icon(Icons.shopping_cart),
+              label: Text('Purchase Orders'),
             ),
             NavigationDrawerDestination(
               icon: const Icon(Icons.archive_outlined),

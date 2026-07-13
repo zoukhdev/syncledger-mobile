@@ -7,6 +7,8 @@ import 'dart:async';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import '../../../scanner/presentation/pages/ocr_scan_page.dart';
+import '../providers/payments_provider.dart';
+import '../../domain/models/payment_model.dart';
 
 class DocumentWorkspace extends ConsumerStatefulWidget {
   final InvoiceModel invoice;
@@ -139,6 +141,71 @@ class _DocumentWorkspaceState extends ConsumerState<DocumentWorkspace> {
                             _DetailRow(label: 'Amount', value: '${widget.invoice.amount.toStringAsFixed(2)} DA'),
                             const SizedBox(height: 8),
                             _DetailRow(label: 'Date', value: "${widget.invoice.date.day}/${widget.invoice.date.month}/${widget.invoice.date.year}"),
+                            const SizedBox(height: 16),
+
+                            // Payment Progress
+                            Consumer(
+                              builder: (context, ref, child) {
+                                final paymentsAsync = ref.watch(paymentsProvider(widget.invoice.id));
+                                return paymentsAsync.when(
+                                  loading: () => const CircularProgressIndicator(),
+                                  error: (err, stack) => Text('Error loading payments: $err'),
+                                  data: (payments) {
+                                    final totalPaid = payments.fold(0.0, (sum, item) => sum + item.amount);
+                                    final progress = widget.invoice.amount > 0 ? (totalPaid / widget.invoice.amount) : 0.0;
+                                    
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            const Text('Payment Progress', style: TextStyle(fontWeight: FontWeight.bold)),
+                                            Text('${(progress * 100).toStringAsFixed(1)}%'),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        LinearProgressIndicator(value: progress.clamp(0.0, 1.0)),
+                                        const SizedBox(height: 4),
+                                        Text('${totalPaid.toStringAsFixed(2)} DA paid of ${widget.invoice.amount.toStringAsFixed(2)} DA', style: Theme.of(context).textTheme.bodySmall),
+                                        
+                                        if (payments.isNotEmpty) ...[
+                                          const SizedBox(height: 16),
+                                          const Text('Payment History', style: TextStyle(fontWeight: FontWeight.bold)),
+                                          const SizedBox(height: 8),
+                                          ...payments.map((p) => ListTile(
+                                            contentPadding: EdgeInsets.zero,
+                                            dense: true,
+                                            title: Text('${p.amount.toStringAsFixed(2)} DA - ${p.method ?? 'Unknown'}'),
+                                            subtitle: Text("${p.paidAt.day}/${p.paidAt.month}/${p.paidAt.year}"),
+                                            trailing: p.notes != null && p.notes!.isNotEmpty ? const Icon(Icons.note) : null,
+                                            onTap: () {
+                                              if (p.notes != null && p.notes!.isNotEmpty) {
+                                                showDialog(
+                                                  context: context, 
+                                                  builder: (c) => AlertDialog(
+                                                    title: const Text('Payment Notes'),
+                                                    content: Text(p.notes!),
+                                                    actions: [TextButton(onPressed: () => Navigator.pop(c), child: const Text('OK'))],
+                                                  )
+                                                );
+                                              }
+                                            },
+                                          )).toList(),
+                                        ],
+                                        const SizedBox(height: 8),
+                                        if (totalPaid < widget.invoice.amount)
+                                          ElevatedButton.icon(
+                                            onPressed: () => _recordPaymentDialog(widget.invoice.amount - totalPaid),
+                                            icon: const Icon(Icons.payment),
+                                            label: const Text('Record Payment'),
+                                          ),
+                                      ],
+                                    );
+                                  }
+                                );
+                              }
+                            ),
                             
                             const SizedBox(height: 32),
                             Text('Notes', style: Theme.of(context).textTheme.titleLarge),
@@ -246,6 +313,82 @@ class _DocumentWorkspaceState extends ConsumerState<DocumentWorkspace> {
           ),
         ],
       ),
+    );
+  }
+
+  void _recordPaymentDialog(double maxAmount) {
+    double amount = maxAmount;
+    String method = 'cash';
+    String notes = '';
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateSB) {
+            return AlertDialog(
+              title: const Text('Record Payment'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      initialValue: amount.toString(),
+                      decoration: const InputDecoration(labelText: 'Amount (DA)'),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      onChanged: (val) => amount = double.tryParse(val) ?? 0,
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: method,
+                      decoration: const InputDecoration(labelText: 'Payment Method'),
+                      items: const [
+                        DropdownMenuItem(value: 'cash', child: Text('Cash')),
+                        DropdownMenuItem(value: 'bank_transfer', child: Text('Bank Transfer')),
+                        DropdownMenuItem(value: 'baridimob', child: Text('BaridiMob')),
+                        DropdownMenuItem(value: 'wimpay', child: Text('Wimpay')),
+                        DropdownMenuItem(value: 'ccp', child: Text('CCP')),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) setStateSB(() => method = val);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      decoration: const InputDecoration(labelText: 'Notes (Optional)'),
+                      onChanged: (val) => notes = val,
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    try {
+                      await Supabase.instance.client.from('payments').insert({
+                        'invoice_id': widget.invoice.id,
+                        'amount': amount,
+                        'method': method,
+                        'notes': notes,
+                      });
+                      
+                      if (mounted) {
+                        ref.invalidate(paymentsProvider(widget.invoice.id));
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Payment recorded successfully')));
+                      }
+                    } catch (e) {
+                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to record payment: $e')));
+                    }
+                  }, 
+                  child: const Text('Save')
+                ),
+              ],
+            );
+          }
+        );
+      }
     );
   }
 
