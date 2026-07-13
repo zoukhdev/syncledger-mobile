@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../../core/notifications/notification_service.dart';
+import '../../../../core/localization/locale_provider.dart';
 
 class DashboardShell extends ConsumerStatefulWidget {
   const DashboardShell({
@@ -67,6 +68,32 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
       appBar: AppBar(
         title: const Text('Equinox', style: TextStyle(fontWeight: FontWeight.w600)),
         centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: DropdownButtonHideUnderline(
+              child: Consumer(
+                builder: (context, ref, child) {
+                  final currentLocale = ref.watch(localeProvider).languageCode;
+                  return DropdownButton<String>(
+                    value: currentLocale,
+                    icon: const Icon(Icons.language, color: Colors.grey),
+                    items: const [
+                      DropdownMenuItem(value: 'fr', child: Text('FR')),
+                      DropdownMenuItem(value: 'en', child: Text('EN')),
+                      DropdownMenuItem(value: 'ar', child: Text('AR')),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) {
+                        ref.read(localeProvider.notifier).setLocale(val);
+                      }
+                    },
+                  );
+                }
+              ),
+            ),
+          ),
+        ],
       ),
       drawer: NavigationDrawer(
         selectedIndex: null, // we don't highlight the drawer items by default
@@ -178,26 +205,26 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
         onDestinationSelected: (index) => _onTap(context, index),
         backgroundColor: theme.colorScheme.surface,
         indicatorColor: theme.colorScheme.primary.withOpacity(0.1),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.space_dashboard_outlined),
-            selectedIcon: Icon(Icons.space_dashboard),
-            label: 'Overview',
+            icon: const Icon(Icons.space_dashboard_outlined),
+            selectedIcon: const Icon(Icons.space_dashboard),
+            label: AppLocalizations.of(context)?.overview ?? 'Overview',
           ),
           NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
-            label: 'Invoices',
+            icon: const Icon(Icons.receipt_long_outlined),
+            selectedIcon: const Icon(Icons.receipt_long),
+            label: AppLocalizations.of(context)?.invoices ?? 'Invoices',
           ),
           NavigationDestination(
-            icon: Icon(Icons.people_alt_outlined),
-            selectedIcon: Icon(Icons.people_alt),
-            label: 'Clients',
+            icon: const Icon(Icons.people_alt_outlined),
+            selectedIcon: const Icon(Icons.people_alt),
+            label: AppLocalizations.of(context)?.clients ?? 'Clients',
           ),
           NavigationDestination(
-            icon: Icon(Icons.storefront_outlined),
-            selectedIcon: Icon(Icons.storefront),
-            label: 'Vendors',
+            icon: const Icon(Icons.storefront_outlined),
+            selectedIcon: const Icon(Icons.storefront),
+            label: AppLocalizations.of(context)?.vendors ?? 'Vendors',
           ),
         ],
       ),

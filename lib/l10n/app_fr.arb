@@ -1,0 +1,13 @@
+{
+  "appTitle": "Equinox",
+  "overview": "Aperçu",
+  "invoices": "Factures",
+  "clients": "Clients",
+  "vendors": "Fournisseurs",
+  "contracts": "Contrats",
+  "caisse": "Caisse",
+  "auditLogs": "Journaux d'Audit",
+  "staff": "Personnel",
+  "settings": "Paramètres",
+  "signOut": "Déconnexion"
+}

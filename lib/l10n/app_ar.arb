@@ -1,0 +1,13 @@
+{
+  "appTitle": "إكوينوكس",
+  "overview": "نظرة عامة",
+  "invoices": "الفواتير",
+  "clients": "العملاء",
+  "vendors": "الموردين",
+  "contracts": "العقود",
+  "caisse": "الصندوق",
+  "auditLogs": "سجلات التدقيق",
+  "staff": "الموظفين",
+  "settings": "الإعدادات",
+  "signOut": "تسجيل الخروج"
+}
