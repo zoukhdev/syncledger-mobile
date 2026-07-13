@@ -20,7 +20,7 @@ class StaffPage extends ConsumerWidget {
       appBar: AppBar(title: Text(t?.staffDirectory ?? 'Staff Directory')),
       body: staffState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text(t?.errorPrefix.replaceAll('{error}', err.toString()) ?? 'Error: $err')),
+        error: (err, stack) => Center(child: Text(t?.errorPrefix(err.toString()) ?? 'Error: $err')),
         data: (staffList) => ListView.builder(
           itemCount: staffList.length,
           itemBuilder: (context, index) {

@@ -95,7 +95,7 @@ class OverviewPage extends ConsumerWidget {
       appBar: AppBar(title: Text(t?.overview ?? 'Overview')),
       body: asyncData.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text(t?.errorPrefix.replaceAll('{error}', err.toString()) ?? 'Error: $err')),
+        error: (err, stack) => Center(child: Text(t?.errorPrefix(err.toString()) ?? 'Error: $err')),
         data: (data) => SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../../contracts/providers/contracts_provider.dart';
 import '../../domain/models/contract_model.dart';
 import '../../domain/models/payment_phase_progress_model.dart';
 
@@ -31,16 +30,19 @@ class RegistersPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final contractsState = ref.watch(contractsProvider);
+    final asyncData = ref.watch(registersProvider);
     final theme = Theme.of(context);
     final t = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(title: Text(t?.cashRegisters ?? 'Cash Registers')),
-      body: contractsState.when(
+      body: asyncData.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text(t?.errorPrefix.replaceAll('{error}', err.toString()) ?? 'Error: $err')),
-        data: (contracts) {
+        error: (err, stack) => Center(child: Text(t?.errorPrefix(err.toString()) ?? 'Error: $err')),
+        data: (data) {
+          final contracts = data['contracts'] as List<ContractModel>;
+          final allPhases = data['phases'] as List<PaymentPhaseProgressModel>;
+
           if (contracts.isEmpty) {
             return Center(child: Text(t?.noContractsFound ?? 'No contracts found.'));
           }
@@ -50,7 +52,7 @@ class RegistersPage extends ConsumerWidget {
             itemCount: contracts.length,
             itemBuilder: (context, index) {
               final contract = contracts[index];
-              final phases = contract.phases ?? [];
+              final phases = allPhases.where((p) => p.contractId == contract.id).toList();
               
               final totalPaid = phases.fold(0.0, (sum, p) => sum + p.totalPaid);
               final remaining = contract.totalAmount - totalPaid;
@@ -90,7 +92,7 @@ class RegistersPage extends ConsumerWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(t?.phase.replaceAll('{number}', phase.phaseNumber.toString()).replaceAll('{name}', phase.phaseName) ?? 'Phase ${phase.phaseNumber}: ${phase.phaseName}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  Text(t?.phase(phase.phaseNumber, phase.phaseName) ?? 'Phase ${phase.phaseNumber}: ${phase.phaseName}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                   const SizedBox(height: 8),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
