@@ -95,5 +95,6 @@
   "save": "Enregistrer",
   "saving": "Enregistrement...",
   "noVendors": "Aucun enregistrement trouvé.",
-  "noVendorsDesc": "Vous n'avez pas encore ajouté d'enregistrements."
+  "noVendorsDesc": "Vous n'avez pas encore ajouté d'enregistrements.",
+  "search": "Rechercher..."
 }

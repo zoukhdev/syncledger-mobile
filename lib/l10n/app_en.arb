@@ -106,5 +106,6 @@
   "save": "Save",
   "saving": "Saving...",
   "noVendors": "No records found.",
-  "noVendorsDesc": "You haven't added any records yet."
+  "noVendorsDesc": "You haven't added any records yet.",
+  "search": "Search..."
 }

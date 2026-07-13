@@ -51,6 +51,9 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
   InvoiceModel? _selectedInvoice;
   String _activeTab = 'approval';
   String _pdfLang = 'fr';
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+  DateTimeRange? _dateRange;
   
   late final Map<ShortcutActivator, Intent> _shortcuts;
   late final Map<Type, Action<Intent>> _actions;
@@ -163,11 +166,27 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
           error: (err, stack) => Center(child: Text('Error: $err')),
           data: (allInvoices) {
             final invoices = allInvoices.where((inv) {
-              if (_activeTab == 'approval') return inv.status == 'pending_approval';
-              if (_activeTab == 'payment') return inv.status == 'pending_payment' || inv.status == 'approved';
-              if (_activeTab == 'returned') return inv.status == 'pending_review';
-              if (_activeTab == 'completed') return inv.status == 'paid';
-              if (_activeTab == 'rejected') return inv.status == 'flagged_rejected';
+              bool matchesTab = true;
+              if (_activeTab == 'approval') matchesTab = inv.status == 'pending_approval';
+              else if (_activeTab == 'payment') matchesTab = inv.status == 'pending_payment' || inv.status == 'approved';
+              else if (_activeTab == 'returned') matchesTab = inv.status == 'pending_review';
+              else if (_activeTab == 'completed') matchesTab = inv.status == 'paid';
+              else if (_activeTab == 'rejected') matchesTab = inv.status == 'flagged_rejected';
+
+              if (!matchesTab) return false;
+
+              if (_searchQuery.isNotEmpty) {
+                if (!inv.vendorName.toLowerCase().contains(_searchQuery.toLowerCase())) {
+                  return false;
+                }
+              }
+
+              if (_dateRange != null) {
+                if (inv.date.isBefore(_dateRange!.start) || inv.date.isAfter(_dateRange!.end.add(const Duration(days: 1)))) {
+                  return false;
+                }
+              }
+
               return true;
             }).toList();
 
@@ -189,6 +208,55 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
 
             return Column(
               children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: AppLocalizations.of(context)?.search ?? 'Search by vendor...',
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: _searchQuery.isNotEmpty 
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear), 
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      setState(() => _searchQuery = '');
+                                    }
+                                  ) 
+                                : null,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                          ),
+                          onChanged: (val) => setState(() => _searchQuery = val),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: Icon(Icons.date_range, color: _dateRange != null ? Theme.of(context).colorScheme.primary : null),
+                        onPressed: () async {
+                          final picked = await showDateRangePicker(
+                            context: context,
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2030),
+                            initialDateRange: _dateRange,
+                          );
+                          if (picked != null) {
+                            setState(() => _dateRange = picked);
+                          } else if (_dateRange != null) {
+                            // Cancelled, clear the filter if they click outside? 
+                            // Actually, let's keep it. 
+                            // To clear, they can click a "Clear" button that we could add.
+                            // But a long press could clear it. Let's just clear it if picked == null for simplicity.
+                            setState(() => _dateRange = null);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -396,7 +464,6 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
     );
   }
 }
-
 class NewInvoiceIntent extends Intent {
   const NewInvoiceIntent();
 }
