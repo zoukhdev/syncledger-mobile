@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../../core/notifications/notification_service.dart';
 import '../../../../core/localization/locale_provider.dart';
