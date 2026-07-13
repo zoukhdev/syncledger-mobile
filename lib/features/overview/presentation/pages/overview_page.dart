@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import '../../../contracts/providers/contracts_provider.dart';
@@ -88,12 +89,13 @@ class OverviewPage extends ConsumerWidget {
     final asyncData = ref.watch(overviewProvider);
     final contractsState = ref.watch(contractsProvider);
     final theme = Theme.of(context);
+    final t = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Overview')),
+      appBar: AppBar(title: Text(t?.overview ?? 'Overview')),
       body: asyncData.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => Center(child: Text(t?.errorPrefix.replaceAll('{error}', err.toString()) ?? 'Error: $err')),
         data: (data) => SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -107,25 +109,25 @@ class OverviewPage extends ConsumerWidget {
                       spacing: 16,
                       runSpacing: 16,
                       children: [
-                        _buildMetricCard(context, 'Total Collected Revenue', data['revenue'], Icons.attach_money, Colors.green, cardWidth),
-                        _buildMetricCard(context, 'Pending Receivables', data['receivables'], Icons.arrow_downward, Colors.blue, cardWidth),
-                        _buildMetricCard(context, 'Pending Payables', data['payables'], Icons.arrow_upward, Colors.orange, cardWidth),
+                        _buildMetricCard(context, t?.totalCollectedRevenue ?? 'Total Collected Revenue', data['revenue'], Icons.attach_money, Colors.green, cardWidth),
+                        _buildMetricCard(context, t?.pendingReceivables ?? 'Pending Receivables', data['receivables'], Icons.arrow_downward, Colors.blue, cardWidth),
+                        _buildMetricCard(context, t?.pendingPayables ?? 'Pending Payables', data['payables'], Icons.arrow_upward, Colors.orange, cardWidth),
                       ],
                     );
                   },
                 ),
                 const SizedBox(height: 32),
-                Text('Revenue (Last 7 Days)', style: Theme.of(context).textTheme.titleLarge),
+                Text(t?.revenueLast7Days ?? 'Revenue (Last 7 Days)', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 _buildChart(context, data['chart_spots']),
                 const SizedBox(height: 32),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Active Contracts', style: Theme.of(context).textTheme.titleLarge),
+                    Text(t?.activeContracts ?? 'Active Contracts', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                     TextButton(
                       onPressed: () => context.push('/contracts'),
-                      child: const Text('View All'),
+                      child: Text(t?.viewAll ?? 'View All'),
                     ),
                   ],
                 ),
@@ -204,6 +206,7 @@ class OverviewPage extends ConsumerWidget {
   }
 
   Widget _buildMetricCard(BuildContext context, String title, double value, IconData icon, Color color, [double? width]) {
+    final t = AppLocalizations.of(context);
     return SizedBox(
       width: width,
       child: Card(
@@ -236,12 +239,13 @@ class OverviewPage extends ConsumerWidget {
   }
 
   Widget _buildContractsList(BuildContext context, AsyncValue contractsState, ThemeData theme) {
+    final t = AppLocalizations.of(context);
     return contractsState.when(
       data: (contracts) {
         if (contracts.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text('No active contracts found.'),
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(t?.noActiveContracts ?? 'No active contracts found.'),
           );
         }
         return ListView.builder(
@@ -254,8 +258,12 @@ class OverviewPage extends ConsumerWidget {
             return Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: theme.colorScheme.primaryContainer,
+                  child: Icon(Icons.description, color: theme.colorScheme.onPrimaryContainer),
+                ),
                 title: Text(contract.contractTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text('${contract.contractorName ?? 'Unknown Vendor'} • ${contract.totalAmount.toStringAsFixed(2)} DZD',
+                subtitle: Text('${contract.contractorName ?? (t?.unknownVendor ?? 'Unknown Vendor')} • ${contract.totalAmount.toStringAsFixed(2)} DZD',
                     style: TextStyle(color: theme.colorScheme.primary)),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {

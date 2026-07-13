@@ -12,6 +12,7 @@ import '../../domain/models/invoice_model.dart';
 import '../../utils/pdf_generator.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../../core/localization/locale_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 final invoicesProvider = FutureProvider<List<InvoiceModel>>((ref) async {
   final prefs = await SharedPreferences.getInstance();
@@ -84,14 +85,14 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Invoice'),
-        content: const Text('Are you sure you want to delete this invoice?'),
+        title: Text(AppLocalizations.of(context)?.deleteInvoice ?? 'Delete Invoice'),
+        content: Text(AppLocalizations.of(context)?.deleteConfirm ?? 'Are you sure you want to delete this invoice?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppLocalizations.of(context)?.cancel ?? 'Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true), 
             style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
-            child: const Text('Delete')
+            child: Text(AppLocalizations.of(context)?.delete ?? 'Delete')
           ),
         ],
       )
@@ -123,7 +124,7 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
       autofocus: true,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Ledger'),
+          title: Text(AppLocalizations.of(context)?.ledger ?? 'Ledger'),
           actions: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -151,7 +152,7 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
             ),
             ElevatedButton.icon(
               icon: const Icon(Icons.add),
-              label: const Text('New Invoice (Ctrl+N)'),
+              label: Text(AppLocalizations.of(context)?.newInvoiceShortcut ?? 'New Invoice (Ctrl+N)'),
               onPressed: _openInvoiceDialog,
             ),
             const SizedBox(width: 16),
@@ -193,15 +194,15 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   child: Row(
                     children: [
-                      buildChip('Pending Approval', 'approval'),
+                      buildChip(AppLocalizations.of(context)?.pendingApproval ?? 'Pending Approval', 'approval'),
                       const SizedBox(width: 8),
-                      buildChip('Pending Payment', 'payment'),
+                      buildChip(AppLocalizations.of(context)?.pendingPayment ?? 'Pending Payment', 'payment'),
                       const SizedBox(width: 8),
-                      buildChip('Returned', 'returned'),
+                      buildChip(AppLocalizations.of(context)?.returned ?? 'Returned', 'returned'),
                       const SizedBox(width: 8),
-                      buildChip('Completed', 'completed'),
+                      buildChip(AppLocalizations.of(context)?.completed ?? 'Completed', 'completed'),
                       const SizedBox(width: 8),
-                      buildChip('Rejected', 'rejected'),
+                      buildChip(AppLocalizations.of(context)?.rejected ?? 'Rejected', 'rejected'),
                     ],
                   ),
                 ),
@@ -293,13 +294,13 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
                               scrollDirection: Axis.horizontal,
                               child: DataTable(
                                 showCheckboxColumn: false,
-                                columns: const [
-                                  DataColumn(label: Text('Type')),
-                                  DataColumn(label: Text('Client / Vendor')),
-                                  DataColumn(label: Text('Date')),
-                                  DataColumn(label: Text('Amount')),
-                                  DataColumn(label: Text('Status')),
-                                  DataColumn(label: Text('Actions')),
+                                columns: [
+                                  DataColumn(label: Text(AppLocalizations.of(context)?.type ?? 'Type')),
+                                  DataColumn(label: Text(AppLocalizations.of(context)?.clientVendor ?? 'Client / Vendor')),
+                                  DataColumn(label: Text(AppLocalizations.of(context)?.date ?? 'Date')),
+                                  DataColumn(label: Text(AppLocalizations.of(context)?.amount ?? 'Amount')),
+                                  DataColumn(label: Text(AppLocalizations.of(context)?.status ?? 'Status')),
+                                  DataColumn(label: Text(AppLocalizations.of(context)?.actions ?? 'Actions')),
                                 ],
                                 rows: invoices.map((invoice) {
                                   return DataRow(
@@ -317,7 +318,7 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
                                             borderRadius: BorderRadius.circular(4),
                                           ),
                                           child: Text(
-                                            invoice.invoiceType == 'receivable' ? 'Client' : 'Vendor',
+                                            invoice.invoiceType == 'receivable' ? (AppLocalizations.of(context)?.client ?? 'Client') : (AppLocalizations.of(context)?.vendor ?? 'Vendor'),
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: invoice.invoiceType == 'receivable' ? Colors.blue : Colors.grey,
@@ -339,17 +340,17 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
                                                 final lang = ref.read(localeProvider).languageCode;
                                                 PdfGenerator.generateAndShareInvoice(invoice, lang: lang);
                                               },
-                                              child: const Text('Export PDF'),
+                                              child: Text(AppLocalizations.of(context)?.exportPdf ?? 'Export PDF'),
                                             ),
                                             if (role == 'owner' || role == 'accountant')
                                               PopupMenuItem(
                                                 onTap: () => _openInvoiceDialog(invoice),
-                                                child: const Text('Edit'),
+                                                child: Text(AppLocalizations.of(context)?.edit ?? 'Edit'),
                                               ),
                                             if (role == 'owner')
                                               PopupMenuItem(
                                                 onTap: () => _deleteInvoice(invoice.id),
-                                                child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                                                child: Text(AppLocalizations.of(context)?.delete ?? 'Delete', style: const TextStyle(color: Colors.red)),
                                               ),
                                           ],
                                         ),

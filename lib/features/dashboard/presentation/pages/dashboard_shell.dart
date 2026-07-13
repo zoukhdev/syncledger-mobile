@@ -151,28 +151,28 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
             NavigationDrawerDestination(
               icon: const Icon(Icons.wallet_outlined),
               selectedIcon: const Icon(Icons.wallet),
-              label: const Text('Cash Registers'),
+              label: Text(AppLocalizations.of(context)?.cashRegisters ?? 'Cash Registers'),
             ),
             NavigationDrawerDestination(
               icon: const Icon(Icons.description_outlined),
               selectedIcon: const Icon(Icons.description),
-              label: const Text('Contracts'),
+              label: Text(AppLocalizations.of(context)?.contracts ?? 'Contracts'),
             ),
             NavigationDrawerDestination(
               icon: const Icon(Icons.archive_outlined),
               selectedIcon: const Icon(Icons.archive),
-              label: const Text('Caisse (Cash Box)'),
+              label: Text(AppLocalizations.of(context)?.caisse ?? 'Caisse'),
             ),
             if (userState.value?.role == 'owner') ...[
               NavigationDrawerDestination(
                 icon: const Icon(Icons.history_outlined),
                 selectedIcon: const Icon(Icons.history),
-                label: const Text('Audit Logs'),
+                label: Text(AppLocalizations.of(context)?.auditLogs ?? 'Audit Logs'),
               ),
               NavigationDrawerDestination(
                 icon: const Icon(Icons.people_outlined),
                 selectedIcon: const Icon(Icons.people),
-                label: const Text('Staff'),
+                label: Text(AppLocalizations.of(context)?.staff ?? 'Staff'),
               ),
             ],
             const Padding(
@@ -182,12 +182,12 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
             NavigationDrawerDestination(
               icon: const Icon(Icons.settings_outlined),
               selectedIcon: const Icon(Icons.settings),
-              label: const Text('Settings'),
+              label: Text(AppLocalizations.of(context)?.settings ?? 'Settings'),
             ),
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 32),
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('Sign Out', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w500)),
+              title: Text(AppLocalizations.of(context)?.signOut ?? 'Sign Out', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500)),
               onTap: () {
                 ref.read(authProvider.notifier).signOut();
                 context.go('/');

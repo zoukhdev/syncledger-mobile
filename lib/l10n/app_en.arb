@@ -9,5 +9,91 @@
   "auditLogs": "Audit Logs",
   "staff": "Staff",
   "settings": "Settings",
-  "signOut": "Sign Out"
+  "signOut": "Sign Out",
+  
+  "revenueLast7Days": "Revenue (Last 7 Days)",
+  "activeContracts": "Active Contracts",
+  "viewAll": "View All",
+  "noActiveContracts": "No active contracts found.",
+  "unknownVendor": "Unknown Vendor",
+  "errorPrefix": "Error: {error}",
+  "@errorPrefix": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+
+  "pendingApproval": "Pending Approval",
+  "pendingPayment": "Pending Payment",
+  "returned": "Returned",
+  "completed": "Completed",
+  "rejected": "Rejected",
+  "newInvoice": "New Invoice",
+
+  "cashRegisters": "Cash Registers",
+  "noContractsFound": "No contracts found.",
+  "paymentPhases": "Payment Phases",
+  "noPhasesDefined": "No phases defined for this contract.",
+  "allocated": "Allocated:",
+  "netRemaining": "Net Remaining:",
+  "phase": "Phase {number}: {name}",
+  "@phase": {
+    "placeholders": {
+      "number": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
+
+  "fullName": "Full Name",
+  "emailAddress": "Email Address",
+  "currentRole": "Current Role",
+  "twoFactorAuth": "Two-Factor Authentication",
+  "notConfigured": "Not configured",
+  "newInvoiceCreated": "New invoice created",
+  "invoiceApproved": "Invoice approved",
+  "weeklyDigest": "Weekly digest",
+  "darkMode": "Dark Mode",
+  "toggleTheme": "Toggle the application theme",
+  "taxFiscalRules": "Tax & Fiscal Rules",
+  "taxFiscalRulesDesc": "Timbre Fiscal, TVA rates",
+  "exchangeRates": "Exchange Rates",
+  "exchangeRatesDesc": "Official & Parallel rates",
+  "companyDocsStamp": "Company Documents & Stamp",
+  "companyDocsStampDesc": "Upload Cachet & Signature",
+
+  "staffDirectory": "Staff Directory",
+  "pendingPassword": "Pending Password",
+  "active": "Active",
+  "unknownUser": "Unknown User",
+
+  "profileDetails": "Profile Details",
+  "securityRole": "Security & Role",
+  "notifications": "Notifications",
+  "appearance": "Appearance",
+  "algerianSettings": "Localization & Algerian Settings",
+
+  "totalCollectedRevenue": "Total Collected Revenue",
+  "pendingReceivables": "Pending Receivables",
+  "pendingPayables": "Pending Payables",
+
+  "budget": "Budget",
+  "paidOut": "Paid Out",
+  "remaining": "Remaining",
+
+  "ledger": "Ledger",
+  "newInvoiceShortcut": "New Invoice (Ctrl+N)",
+  "type": "Type",
+  "clientVendor": "Client / Vendor",
+  "date": "Date",
+  "amount": "Amount",
+  "status": "Status",
+  "actions": "Actions",
+  "client": "Client",
+  "vendor": "Vendor",
+  "exportPdf": "Export PDF",
+  "edit": "Edit",
+  "delete": "Delete",
+  "deleteInvoice": "Delete Invoice",
+  "deleteConfirm": "Are you sure you want to delete this invoice?",
+  "cancel": "Cancel"
 }
