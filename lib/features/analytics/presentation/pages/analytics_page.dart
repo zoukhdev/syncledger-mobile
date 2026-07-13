@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../providers/analytics_provider.dart';
 import '../../utils/pdf_report_generator.dart';
 
@@ -10,10 +11,11 @@ class AnalyticsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final analyticsAsync = ref.watch(analyticsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Analytics & Reporting'),
+        title: Text(l10n.analytics),
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
@@ -21,7 +23,7 @@ class AnalyticsPage extends ConsumerWidget {
             onPressed: () {
               final data = ref.read(analyticsProvider).valueOrNull;
               if (data != null) {
-                PdfReportGenerator.generateAndShareMonthlyReport(data);
+                PdfReportGenerator.generateAndShareMonthlyReport(data, l10n);
               }
             },
           ),
@@ -39,17 +41,17 @@ class AnalyticsPage extends ConsumerWidget {
                 // KPI Cards
                 Row(
                   children: [
-                    Expanded(child: _KPICard(title: 'Revenue', amount: data.totalRevenue, color: Colors.green)),
+                    Expanded(child: _KPICard(title: l10n.revenue, amount: data.totalRevenue, color: Colors.green)),
                     const SizedBox(width: 8),
-                    Expanded(child: _KPICard(title: 'Expenses', amount: data.totalExpenses, color: Colors.red)),
+                    Expanded(child: _KPICard(title: l10n.expense, amount: data.totalExpenses, color: Colors.red)),
                     const SizedBox(width: 8),
-                    Expanded(child: _KPICard(title: 'Profit', amount: data.netProfit, color: data.netProfit >= 0 ? Colors.blue : Colors.red)),
+                    Expanded(child: _KPICard(title: l10n.netProfit, amount: data.netProfit, color: data.netProfit >= 0 ? Colors.blue : Colors.red)),
                   ],
                 ),
                 const SizedBox(height: 24),
                 
                 // P&L Chart
-                Text('Profit & Loss Trend (6m)', style: Theme.of(context).textTheme.titleLarge),
+                Text(l10n.pnlTrend, style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 16),
                 SizedBox(
                   height: 300,
@@ -99,7 +101,7 @@ class AnalyticsPage extends ConsumerWidget {
                 const SizedBox(height: 24),
 
                 // Top Vendors Pie Chart
-                Text('Top 5 Vendors by Spend', style: Theme.of(context).textTheme.titleLarge),
+                Text(l10n.topVendors, style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 16),
                 SizedBox(
                   height: 300,
@@ -107,7 +109,7 @@ class AnalyticsPage extends ConsumerWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: data.spendData.isEmpty 
-                        ? const Center(child: Text('No expense data'))
+                        ? Center(child: Text(l10n.noExpenseData))
                         : PieChart(
                             PieChartData(
                               sectionsSpace: 2,
@@ -153,7 +155,7 @@ class AnalyticsPage extends ConsumerWidget {
                 const SizedBox(height: 24),
 
                 // Cash Flow Forecast
-                Text('Cash Flow Forecast', style: Theme.of(context).textTheme.titleLarge),
+                Text(l10n.cashFlowForecast, style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 16),
                 Card(
                   child: Padding(
@@ -173,14 +175,14 @@ class AnalyticsPage extends ConsumerWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Expected In', style: TextStyle(color: Colors.grey)),
+                                Text(l10n.expectedIn, style: const TextStyle(color: Colors.grey)),
                                 Text('+${data.cashFlowReceivables.toStringAsFixed(0)}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
                               ],
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                const Text('Expected Out', style: TextStyle(color: Colors.grey)),
+                                Text(l10n.expectedOut, style: const TextStyle(color: Colors.grey)),
                                 Text('-${data.cashFlowPayables.toStringAsFixed(0)}', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
                               ],
                             ),

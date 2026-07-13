@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../domain/models/po_line_item_model.dart';
 import '../providers/purchase_orders_provider.dart';
 import '../../../scanner/presentation/pages/ocr_scan_page.dart';
@@ -60,7 +61,7 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
     if (result != null && result is Map) {
       final text = result['text'] as String;
       // Extract the first non-empty line as description
-      final lines = text.split('\\n').where((l) => l.trim().isNotEmpty).toList();
+      final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
       if (lines.isNotEmpty) {
         final currentItem = _lineItems[index];
         _updateLineItem(index, POLineItemModel(
@@ -131,6 +132,8 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Dialog(
       insetPadding: const EdgeInsets.all(16),
       child: ConstrainedBox(
@@ -145,7 +148,7 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('New Purchase Order', style: Theme.of(context).textTheme.titleLarge),
+                    Text(l10n.newPurchaseOrder, style: Theme.of(context).textTheme.titleLarge),
                     IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.pop(context),
@@ -161,7 +164,7 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
                           Expanded(
                             child: TextFormField(
                               controller: _poNumberController,
-                              decoration: const InputDecoration(labelText: 'PO Number *', border: OutlineInputBorder()),
+                              decoration: InputDecoration(labelText: '${l10n.poNumber} *', border: const OutlineInputBorder()),
                               validator: (val) => val == null || val.isEmpty ? 'Required' : null,
                             ),
                           ),
@@ -178,7 +181,7 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
                                 if (date != null) setState(() => _issuedAt = date);
                               },
                               child: InputDecorator(
-                                decoration: const InputDecoration(labelText: 'Issue Date', border: OutlineInputBorder()),
+                                decoration: InputDecoration(labelText: l10n.issueDate, border: const OutlineInputBorder()),
                                 child: Text("${_issuedAt.day}/${_issuedAt.month}/${_issuedAt.year}"),
                               ),
                             ),
@@ -186,7 +189,7 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
                         ],
                       ),
                       const SizedBox(height: 16),
-                      Text('Line Items', style: Theme.of(context).textTheme.titleMedium),
+                      Text(l10n.lineItems, style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
                       ..._lineItems.asMap().entries.map((entry) {
                         final index = entry.key;
@@ -202,7 +205,7 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
                                     Expanded(
                                       child: TextFormField(
                                         initialValue: item.description,
-                                        decoration: const InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
+                                        decoration: InputDecoration(labelText: l10n.itemDescription, border: const OutlineInputBorder()),
                                         onChanged: (val) => _updateLineItem(index, POLineItemModel(
                                           id: item.id, poId: item.poId, description: val, quantity: item.quantity, unitPrice: item.unitPrice
                                         )),
@@ -221,7 +224,7 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
                                     Expanded(
                                       child: TextFormField(
                                         initialValue: item.quantity.toString(),
-                                        decoration: const InputDecoration(labelText: 'Qty', border: OutlineInputBorder()),
+                                        decoration: InputDecoration(labelText: l10n.qty, border: const OutlineInputBorder()),
                                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                         onChanged: (val) => _updateLineItem(index, POLineItemModel(
                                           id: item.id, poId: item.poId, description: item.description, 
@@ -233,7 +236,7 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
                                     Expanded(
                                       child: TextFormField(
                                         initialValue: item.unitPrice.toString(),
-                                        decoration: const InputDecoration(labelText: 'Unit Price', border: OutlineInputBorder()),
+                                        decoration: InputDecoration(labelText: l10n.unitPrice, border: const OutlineInputBorder()),
                                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                         onChanged: (val) => _updateLineItem(index, POLineItemModel(
                                           id: item.id, poId: item.poId, description: item.description, 
@@ -255,15 +258,15 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
                       }),
                       TextButton.icon(
                         icon: const Icon(Icons.add),
-                        label: const Text('Add Line Item'),
+                        label: Text(l10n.addItem),
                         onPressed: _addLineItem,
                       ),
                       const SizedBox(height: 16),
-                      Text('Total: ${_totalAmount.toStringAsFixed(2)} DA', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      Text('${l10n.totalAmount}: ${_totalAmount.toStringAsFixed(2)} DA', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _notesController,
-                        decoration: const InputDecoration(labelText: 'Notes', border: OutlineInputBorder()),
+                        decoration: InputDecoration(labelText: l10n.notes, border: const OutlineInputBorder()),
                         maxLines: 3,
                       ),
                     ],
@@ -273,11 +276,11 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                    TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
                     const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: _isLoading ? null : _submit,
-                      child: _isLoading ? const CircularProgressIndicator() : const Text('Create PO'),
+                      child: _isLoading ? const CircularProgressIndicator() : Text(l10n.createPO),
                     ),
                   ],
                 ),

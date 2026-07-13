@@ -8,6 +8,7 @@ import 'core/theme/theme_provider.dart';
 import 'core/sync/sync_service.dart';
 import 'core/router/app_router.dart';
 import 'core/localization/locale_provider.dart';
+import 'features/notifications/services/notification_service.dart';
 
 // IMPORTANT: Replace with actual values injected via --dart-define or env file in a real app
 const String supabaseUrl = 'https://ptcjueqjulccrmfuyefb.supabase.co';
@@ -26,6 +27,13 @@ void main() async {
     await SyncService.syncOfflineMutations();
   } catch (e) {
     debugPrint('Initial sync failed: $e');
+  }
+
+  try {
+    await NotificationService.initialize();
+    await NotificationService.scheduleDocumentExpiryNotifications();
+  } catch (e) {
+    debugPrint('Notification service failed to initialize: $e');
   }
 
   runApp(const ProviderScope(child: SyncLedgerApp()));

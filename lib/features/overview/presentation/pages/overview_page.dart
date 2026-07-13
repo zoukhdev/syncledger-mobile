@@ -72,12 +72,37 @@ final overviewProvider = FutureProvider<Map<String, dynamic>>((ref) async {
     spots.add(FlSpot((6 - i).toDouble(), dailyRevenue[i]!));
   }
 
+  // Expiring documents (next 30 days)
+  final thirtyDaysFromNow = DateTime.now().add(const Duration(days: 30));
+  List expiringDocs = [];
+  try {
+    expiringDocs = await Supabase.instance.client
+        .from('documents')
+        .select('*')
+        .lte('expiry_date', thirtyDaysFromNow.toIso8601String())
+        .gte('expiry_date', DateTime.now().toIso8601String())
+        .order('expiry_date', ascending: true);
+  } catch (_) {}
+
+  // Overdue Invoices
+  List overdueInvoices = [];
+  try {
+    overdueInvoices = await Supabase.instance.client
+        .from('invoices')
+        .select('*, contractors(company_name)')
+        .lt('due_date', DateTime.now().toIso8601String())
+        .inFilter('status', ['pending_approval', 'pending_payment'])
+        .order('due_date', ascending: true);
+  } catch (_) {}
+
   return {
     'revenue': totalRevenue,
     'receivables': pendingReceivables,
     'payables': pendingPayables,
     'total_invoices': invoicesRes.length,
     'chart_spots': spots,
+    'expiring_docs': expiringDocs,
+    'overdue_invoices': overdueInvoices,
   };
 });
 
@@ -116,6 +141,46 @@ class OverviewPage extends ConsumerWidget {
                     );
                   },
                 ),
+                if ((data['overdue_invoices'] as List).isNotEmpty) ...[
+                  const SizedBox(height: 32),
+                  Row(
+                    children: [
+                      const Icon(Icons.error_outline, color: Colors.red),
+                      const SizedBox(width: 8),
+                      Text('Overdue Invoices (\${(data['overdue_invoices'] as List).length})', style: theme.textTheme.titleLarge?.copyWith(color: Colors.red, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: (data['overdue_invoices'] as List).length,
+                    itemBuilder: (context, index) {
+                      final inv = data['overdue_invoices'][index];
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        color: Colors.red.withOpacity(0.05),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: Colors.red.withOpacity(0.3)),
+                        ),
+                        child: ListTile(
+                          title: Text(inv['contractors']?['company_name'] ?? 'Unknown Vendor'),
+                          subtitle: Text('Due: \${inv['due_date'].split('T')[0]}'),
+                          trailing: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text('\${inv['amount']} DZD', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+                              Text(inv['status'], style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                ],
+
                 const SizedBox(height: 32),
                 Text(t?.revenueLast7Days ?? 'Revenue (Last 7 Days)', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
@@ -133,6 +198,30 @@ class OverviewPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 _buildContractsList(context, contractsState, theme),
+
+                if ((data['expiring_docs'] as List).isNotEmpty) ...[
+                  const SizedBox(height: 32),
+                  Text('Expiring Documents (30 Days)', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: (data['expiring_docs'] as List).length,
+                    itemBuilder: (context, index) {
+                      final doc = data['expiring_docs'][index];
+                      final isExpired = DateTime.parse(doc['expiry_date']).isBefore(DateTime.now());
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: ListTile(
+                          leading: Icon(Icons.warning_amber_rounded, color: isExpired ? Colors.red : Colors.orange),
+                          title: Text(doc['document_type'] ?? 'Document'),
+                          subtitle: Text('Exp: \${doc['expiry_date'].split('T')[0]}'),
+                          trailing: const Icon(Icons.chevron_right),
+                        ),
+                      );
+                    },
+                  )
+                ]
               ],
             ),
           ),
