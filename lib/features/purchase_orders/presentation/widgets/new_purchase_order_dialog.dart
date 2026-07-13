@@ -148,7 +148,9 @@ class _NewPurchaseOrderDialogState extends ConsumerState<NewPurchaseOrderDialog>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(l10n.newPurchaseOrder, style: Theme.of(context).textTheme.titleLarge),
+                    Expanded(
+                      child: Text(l10n.newPurchaseOrder, style: Theme.of(context).textTheme.titleLarge),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.pop(context),

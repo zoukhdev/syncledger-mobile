@@ -1,14 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
 
-class SettingsPage extends ConsumerWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends ConsumerState<SettingsPage> {
+  bool _notifNewInvoice = true;
+  bool _notifInvoiceApproved = true;
+  bool _notifWeeklyDigest = false;
+
+  Future<void> _showChangePasswordDialog() async {
+    final oldPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        bool isLoading = false;
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) => AlertDialog(
+            title: const Text('Change Password'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: oldPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: 'Old Password', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: newPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: 'New Password', border: OutlineInputBorder()),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+              ElevatedButton(
+                onPressed: isLoading ? null : () async {
+                  if (oldPasswordController.text.isEmpty || newPasswordController.text.isEmpty) return;
+                  setDialogState(() => isLoading = true);
+                  try {
+                    final email = Supabase.instance.client.auth.currentUser?.email;
+                    if (email != null) {
+                      await Supabase.instance.client.auth.signInWithPassword(email: email, password: oldPasswordController.text);
+                    }
+                    await Supabase.instance.client.auth.updateUser(UserAttributes(password: newPasswordController.text));
+                    
+                    if (ctx.mounted) {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password updated successfully')));
+                    }
+                  } catch (e) {
+                    if (ctx.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                      setDialogState(() => isLoading = false);
+                    }
+                  }
+                },
+                child: isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Update'),
+              ),
+            ],
+          )
+        );
+      }
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final userState = ref.watch(authProvider);
     final t = AppLocalizations.of(context);
@@ -42,26 +112,35 @@ class SettingsPage extends ConsumerWidget {
             title: Text(t?.twoFactorAuth ?? 'Two-Factor Authentication'),
             subtitle: Text(t?.notConfigured ?? 'Not configured'),
             leading: const Icon(Icons.security_outlined),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please use the Web App to configure 2FA.')));
+            },
+          ),
+          ListTile(
+            title: const Text('Change Password'),
+            leading: const Icon(Icons.password_outlined),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: _showChangePasswordDialog,
           ),
           
           const Divider(),
           _SectionHeader(title: t?.notifications ?? 'Notifications'),
           SwitchListTile(
             title: Text(t?.newInvoiceCreated ?? 'New invoice created'),
-            value: true,
-            onChanged: (val) {},
+            value: _notifNewInvoice,
+            onChanged: (val) => setState(() => _notifNewInvoice = val),
             secondary: const Icon(Icons.notifications_active_outlined),
           ),
           SwitchListTile(
             title: Text(t?.invoiceApproved ?? 'Invoice approved'),
-            value: true,
-            onChanged: (val) {},
+            value: _notifInvoiceApproved,
+            onChanged: (val) => setState(() => _notifInvoiceApproved = val),
             secondary: const Icon(Icons.check_circle_outline),
           ),
           SwitchListTile(
             title: Text(t?.weeklyDigest ?? 'Weekly digest'),
-            value: false,
-            onChanged: (val) {},
+            value: _notifWeeklyDigest,
+            onChanged: (val) => setState(() => _notifWeeklyDigest = val),
             secondary: const Icon(Icons.mail_outline),
           ),
           

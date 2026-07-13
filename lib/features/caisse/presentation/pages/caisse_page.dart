@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -196,18 +198,19 @@ class _CaissePageState extends ConsumerState<CaissePage> {
                         const SizedBox(height: 8),
                         Text('Last Reconciled: ${register['last_reconciled_at'] != null ? DateTime.parse(register['last_reconciled_at']).toLocal().toString() : 'Never'}', style: const TextStyle(color: Colors.grey)),
                         const SizedBox(height: 16),
-                        Row(
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
                           children: [
                             ElevatedButton.icon(
                               onPressed: () => _showAddTransactionDialog(context, register['id']),
                               icon: const Icon(Icons.add),
-                              label: const Text('New Transaction'),
+                              label: Text(AppLocalizations.of(context)?.addContractor ?? 'New Transaction'), // Temporary fallback or new string
                             ),
-                            const SizedBox(width: 8),
                             OutlinedButton.icon(
                               onPressed: () => _showReconcileDialog(context, register),
                               icon: const Icon(Icons.check_circle_outline),
-                              label: const Text('Reconcile'),
+                              label: Text(AppLocalizations.of(context)?.caisse ?? 'Reconcile'), // Add string 'reconcile' later
                             ),
                           ],
                         ),

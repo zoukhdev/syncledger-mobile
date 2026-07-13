@@ -162,10 +162,10 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
               selectedIcon: const Icon(Icons.description),
               label: Text(AppLocalizations.of(context)?.contracts ?? 'Contracts'),
             ),
-            const NavigationDrawerDestination(
-              icon: Icon(Icons.shopping_cart_outlined),
-              selectedIcon: Icon(Icons.shopping_cart),
-              label: Text('Purchase Orders'),
+            NavigationDrawerDestination(
+              icon: const Icon(Icons.shopping_cart_outlined),
+              selectedIcon: const Icon(Icons.shopping_cart),
+              label: Text(AppLocalizations.of(context)?.purchaseOrders ?? 'Purchase Orders'),
             ),
             NavigationDrawerDestination(
               icon: const Icon(Icons.bar_chart),

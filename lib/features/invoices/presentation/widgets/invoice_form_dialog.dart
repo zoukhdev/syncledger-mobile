@@ -5,6 +5,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../domain/models/invoice_model.dart';
 import '../../../scanner/presentation/pages/ocr_scan_page.dart';
 import '../../../../core/sync/sync_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InvoiceFormDialog extends StatefulWidget {
   final InvoiceModel? invoice;
@@ -146,8 +147,9 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return AlertDialog(
-      title: Text(widget.invoice == null ? 'Create New Invoice' : 'Edit Invoice'),
+      title: Text(widget.invoice == null ? (t?.createNewInvoice ?? 'Create New Invoice') : (t?.editInvoice ?? 'Edit Invoice')),
       content: SizedBox(
         width: 400,
         child: Form(
@@ -161,7 +163,7 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                 else ...[
                   DropdownButtonFormField<String>(
                     value: _selectedContractId,
-                    decoration: const InputDecoration(labelText: 'Contract', border: OutlineInputBorder()),
+                    decoration: InputDecoration(labelText: t?.contract ?? 'Contract', border: const OutlineInputBorder()),
                     items: _contracts.map((c) => DropdownMenuItem<String>(
                       value: c['id'] as String,
                       child: Text(c['contract_title'] as String),
@@ -177,7 +179,7 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: _selectedPhaseId,
-                    decoration: const InputDecoration(labelText: 'Payment Phase', border: OutlineInputBorder()),
+                    decoration: InputDecoration(labelText: t?.paymentPhase ?? 'Payment Phase', border: const OutlineInputBorder()),
                     items: _phases.where((p) => p['contract_id'] == _selectedContractId).map((p) => DropdownMenuItem<String>(
                       value: p['id'] as String,
                       child: Text(p['phase_name'] as String),
@@ -191,10 +193,10 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                 ],
                 DropdownButtonFormField<String>(
                   value: _invoiceType,
-                  decoration: const InputDecoration(labelText: 'Type', border: OutlineInputBorder()),
-                  items: const [
-                    DropdownMenuItem(value: 'payable', child: Text('Bill to Pay (Vendor)')),
-                    DropdownMenuItem(value: 'receivable', child: Text('Invoice to Collect (Client)')),
+                  decoration: InputDecoration(labelText: t?.type ?? 'Type', border: const OutlineInputBorder()),
+                  items: [
+                    DropdownMenuItem(value: 'payable', child: Text(t?.billToPay ?? 'Bill to Pay (Vendor)')),
+                    DropdownMenuItem(value: 'receivable', child: Text(t?.invoiceToCollect ?? 'Invoice to Collect (Client)')),
                   ],
                   onChanged: (val) {
                     if (val != null) setState(() => _invoiceType = val);
@@ -203,13 +205,13 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _vendorController,
-                  decoration: const InputDecoration(labelText: 'Client / Vendor Name', border: OutlineInputBorder()),
-                  validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+                  decoration: InputDecoration(labelText: '${t?.vendorClientName ?? 'Vendor / Client Name'} *', border: const OutlineInputBorder()),
+                  validator: (val) => val == null || val.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _amountController,
-                  decoration: const InputDecoration(labelText: 'Amount (HT)', border: OutlineInputBorder()),
+                  decoration: InputDecoration(labelText: '${t?.amount ?? 'Amount'} *', border: const OutlineInputBorder()),
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Required';
@@ -225,7 +227,7 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                     Expanded(
                       child: DropdownButtonFormField<num>(
                         value: _tvaRate,
-                        decoration: const InputDecoration(labelText: 'TVA Rate', border: OutlineInputBorder()),
+                        decoration: InputDecoration(labelText: t?.tvaRate ?? 'TVA Rate (%)', border: const OutlineInputBorder()),
                         items: const [
                           DropdownMenuItem(value: 0, child: Text('0%')),
                           DropdownMenuItem(value: 9, child: Text('9%')),
@@ -236,15 +238,15 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                         },
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         value: _paymentMethod,
-                        decoration: const InputDecoration(labelText: 'Payment Method', border: OutlineInputBorder()),
-                        items: const [
-                          DropdownMenuItem(value: 'bank_transfer', child: Text('Bank Transfer')),
-                          DropdownMenuItem(value: 'check', child: Text('Check')),
-                          DropdownMenuItem(value: 'cash', child: Text('Espèces (Cash)')),
+                        decoration: InputDecoration(labelText: t?.paymentMethod ?? 'Payment Method', border: const OutlineInputBorder()),
+                        items: [
+                          DropdownMenuItem(value: 'bank_transfer', child: Text(t?.bankTransfer ?? 'Bank Transfer')),
+                          DropdownMenuItem(value: 'cheque', child: Text(t?.cheque ?? 'Cheque')),
+                          DropdownMenuItem(value: 'cash', child: Text(t?.cash ?? 'Cash')),
                           DropdownMenuItem(value: 'baridimob', child: Text('BaridiMob / Edahabia')),
                           DropdownMenuItem(value: 'wimpay', child: Text('Wimpay (CPA / BNA)')),
                         ],

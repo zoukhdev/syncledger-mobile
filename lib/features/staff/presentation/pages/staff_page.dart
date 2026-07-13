@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../auth/providers/auth_provider.dart';
 
 final staffProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final supabase = Supabase.instance.client;
@@ -53,10 +54,16 @@ class StaffPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final staffState = ref.watch(staffProvider);
+    final authState = ref.watch(authProvider);
+    final isOwner = authState.value?.role == 'owner';
     final t = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(title: Text(t?.staffDirectory ?? 'Staff Directory')),
+      floatingActionButton: isOwner ? FloatingActionButton(
+        onPressed: () => _showAddStaffDialog(context, ref),
+        child: const Icon(Icons.person_add),
+      ) : null,
       body: staffState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text(t?.errorPrefix(err.toString()) ?? 'Error: $err')),
@@ -86,6 +93,30 @@ class StaffPage extends ConsumerWidget {
                         staff['force_password_reset'] == true 
                             ? Chip(label: Text(t?.pendingPassword ?? 'Pending', style: const TextStyle(fontSize: 10)), backgroundColor: Colors.orange) 
                             : Chip(label: Text(t?.active ?? 'Active', style: const TextStyle(fontSize: 10)), backgroundColor: Colors.green),
+                        if (isOwner)
+                          PopupMenuButton<String>(
+                            icon: const Icon(Icons.more_vert),
+                            onSelected: (val) async {
+                              try {
+                                if (val == 'reset') {
+                                  await Supabase.instance.client.functions.invoke('reset-staff-password', body: {'userId': staff['id']});
+                                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password reset email sent')));
+                                } else if (val == 'remove') {
+                                  await Supabase.instance.client.functions.invoke('delete-staff', body: {'userId': staff['id']});
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Staff removed')));
+                                    ref.refresh(staffProvider);
+                                  }
+                                }
+                              } catch (e) {
+                                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(value: 'reset', child: Text('Resend Password Reset')),
+                              const PopupMenuItem(value: 'remove', child: Text('Remove Staff')),
+                            ],
+                          ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -106,6 +137,70 @@ class StaffPage extends ConsumerWidget {
           },
         ),
       ),
+    );
+  }
+
+  void _showAddStaffDialog(BuildContext context, WidgetRef ref) {
+    final emailController = TextEditingController();
+    final nameController = TextEditingController();
+    final roleController = TextEditingController(text: 'staff');
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        bool isLoading = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Add Staff'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(controller: emailController, decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder())),
+                  const SizedBox(height: 16),
+                  TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Full Name', border: OutlineInputBorder())),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: roleController.text,
+                    decoration: const InputDecoration(labelText: 'Role', border: OutlineInputBorder()),
+                    items: const [
+                      DropdownMenuItem(value: 'staff', child: Text('Staff')),
+                      DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                    ],
+                    onChanged: (val) => roleController.text = val ?? 'staff',
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                ElevatedButton(
+                  onPressed: isLoading ? null : () async {
+                    if (emailController.text.isEmpty) return;
+                    setState(() => isLoading = true);
+                    try {
+                      await Supabase.instance.client.functions.invoke('create-staff', body: {
+                        'email': emailController.text,
+                        'fullName': nameController.text,
+                        'role': roleController.text,
+                      });
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        ref.refresh(staffProvider);
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                        setState(() => isLoading = false);
+                      }
+                    }
+                  },
+                  child: isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Save'),
+                ),
+              ],
+            );
+          }
+        );
+      }
     );
   }
 

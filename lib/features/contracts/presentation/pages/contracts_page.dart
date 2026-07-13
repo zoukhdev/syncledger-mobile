@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/contracts_provider.dart';
 import '../widgets/create_contract_dialog.dart';
+import 'contract_phases_page.dart';
 
 class ContractsPage extends ConsumerWidget {
   const ContractsPage({super.key});
@@ -53,7 +54,7 @@ class ContractsPage extends ConsumerWidget {
                     ),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
-                      // Navigate to details if needed in the future
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => ContractPhasesPage(contract: contract)));
                     },
                   ),
                 );

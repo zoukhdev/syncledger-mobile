@@ -129,33 +129,9 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)?.ledger ?? 'Ledger'),
           actions: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: DropdownButtonHideUnderline(
-                child: Consumer(
-                  builder: (context, ref, child) {
-                    final currentLocale = ref.watch(localeProvider).languageCode;
-                    return DropdownButton<String>(
-                      value: currentLocale,
-                      icon: const Icon(Icons.language, color: Colors.grey),
-                      items: const [
-                        DropdownMenuItem(value: 'fr', child: Text('FR')),
-                        DropdownMenuItem(value: 'en', child: Text('EN')),
-                        DropdownMenuItem(value: 'ar', child: Text('AR')),
-                      ],
-                      onChanged: (val) {
-                        if (val != null) {
-                          ref.read(localeProvider.notifier).setLocale(val);
-                        }
-                      },
-                    );
-                  }
-                ),
-              ),
-            ),
             ElevatedButton.icon(
-              icon: const Icon(Icons.add),
-              label: Text(AppLocalizations.of(context)?.newInvoiceShortcut ?? 'New Invoice (Ctrl+N)'),
+              icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
+              label: Text(AppLocalizations.of(context)?.newInvoice ?? 'New Invoice'),
               onPressed: _openInvoiceDialog,
             ),
             const SizedBox(width: 16),
