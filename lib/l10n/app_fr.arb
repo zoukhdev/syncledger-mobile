@@ -84,5 +84,16 @@
   "delete": "Supprimer",
   "deleteInvoice": "Supprimer la facture",
   "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette facture ?",
-  "cancel": "Annuler"
+  "cancel": "Annuler",
+
+  "addContractor": "Ajouter un entrepreneur",
+  "exportDirectory": "Exporter le répertoire",
+  "companyName": "Nom de l'entreprise",
+  "contactName": "Nom du contact",
+  "phone": "Numéro de téléphone",
+  "email": "Email",
+  "save": "Enregistrer",
+  "saving": "Enregistrement...",
+  "noVendors": "Aucun enregistrement trouvé.",
+  "noVendorsDesc": "Vous n'avez pas encore ajouté d'enregistrements."
 }

@@ -84,5 +84,16 @@
   "delete": "حذف",
   "deleteInvoice": "حذف الفاتورة",
   "deleteConfirm": "هل أنت متأكد أنك تريد حذف هذه الفاتورة؟",
-  "cancel": "إلغاء"
+  "cancel": "إلغاء",
+
+  "addContractor": "إضافة مقاول",
+  "exportDirectory": "تصدير الدليل",
+  "companyName": "اسم الشركة",
+  "contactName": "اسم جهة الاتصال",
+  "phone": "رقم الهاتف",
+  "email": "البريد الإلكتروني",
+  "save": "حفظ",
+  "saving": "جاري الحفظ...",
+  "noVendors": "لم يتم العثور على سجلات.",
+  "noVendorsDesc": "لم تقم بإضافة أي سجلات بعد."
 }
