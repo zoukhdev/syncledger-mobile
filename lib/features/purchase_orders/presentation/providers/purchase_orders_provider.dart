@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../domain/models/purchase_order_model.dart';
+import '../../../../domain/models/purchase_order_model.dart';
 
 final purchaseOrdersProvider = FutureProvider<List<PurchaseOrderModel>>((ref) async {
   final response = await Supabase.instance.client

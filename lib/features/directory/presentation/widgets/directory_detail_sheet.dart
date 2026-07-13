@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'directory_list_view.dart';
 import '../../../invoices/presentation/widgets/status_badge.dart';
-import '../../documents/presentation/widgets/documents_section.dart';
+import '../../../documents/presentation/widgets/documents_section.dart';
 
 class DirectoryDetailSheet extends StatefulWidget {
   final DirectoryEntity entity;

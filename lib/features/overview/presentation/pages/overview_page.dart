@@ -147,7 +147,7 @@ class OverviewPage extends ConsumerWidget {
                     children: [
                       const Icon(Icons.error_outline, color: Colors.red),
                       const SizedBox(width: 8),
-                      Text('Overdue Invoices (\${(data['overdue_invoices'] as List).length})', style: theme.textTheme.titleLarge?.copyWith(color: Colors.red, fontWeight: FontWeight.bold)),
+                      Text('Overdue Invoices (${(data['overdue_invoices'] as List).length})', style: theme.textTheme.titleLarge?.copyWith(color: Colors.red, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -166,12 +166,12 @@ class OverviewPage extends ConsumerWidget {
                         ),
                         child: ListTile(
                           title: Text(inv['contractors']?['company_name'] ?? 'Unknown Vendor'),
-                          subtitle: Text('Due: \${inv['due_date'].split('T')[0]}'),
+                          subtitle: Text('Due: ${inv['due_date'].split('T')[0]}'),
                           trailing: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text('\${inv['amount']} DZD', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+                              Text('${inv['amount']} DZD', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
                               Text(inv['status'], style: const TextStyle(fontSize: 10, color: Colors.grey)),
                             ],
                           ),
@@ -215,7 +215,7 @@ class OverviewPage extends ConsumerWidget {
                         child: ListTile(
                           leading: Icon(Icons.warning_amber_rounded, color: isExpired ? Colors.red : Colors.orange),
                           title: Text(doc['document_type'] ?? 'Document'),
-                          subtitle: Text('Exp: \${doc['expiry_date'].split('T')[0]}'),
+                          subtitle: Text('Exp: ${doc['expiry_date'].split('T')[0]}'),
                           trailing: const Icon(Icons.chevron_right),
                         ),
                       );

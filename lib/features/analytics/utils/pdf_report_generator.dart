@@ -80,7 +80,7 @@ class PdfReportGenerator {
     );
 
     // Filter and sort invoices for the table
-    final invoicesList = List<Map<String, dynamic>>.from(data.invoices);
+    final invoicesList = List<Map<String, dynamic>>.from(data.rawInvoices);
     invoicesList.sort((a, b) => (b['invoice_date'] ?? '').compareTo(a['invoice_date'] ?? ''));
 
     // If there are many invoices, add them as a separate table to handle page breaks naturally

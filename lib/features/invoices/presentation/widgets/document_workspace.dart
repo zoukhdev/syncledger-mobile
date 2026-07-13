@@ -8,7 +8,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import '../../../scanner/presentation/pages/ocr_scan_page.dart';
 import '../providers/payments_provider.dart';
-import '../../domain/models/payment_model.dart';
+import '../../../../domain/models/payment_model.dart';
 
 class DocumentWorkspace extends ConsumerStatefulWidget {
   final InvoiceModel invoice;

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../domain/models/payment_model.dart';
+import '../../../../domain/models/payment_model.dart';
 
 final paymentsProvider = FutureProvider.family<List<PaymentModel>, String>((ref, invoiceId) async {
   final response = await Supabase.instance.client

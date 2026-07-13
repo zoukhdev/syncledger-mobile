@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../domain/models/po_line_item_model.dart';
+import '../../../../domain/models/po_line_item_model.dart';
 import '../providers/purchase_orders_provider.dart';
 import '../../../scanner/presentation/pages/ocr_scan_page.dart';
 
