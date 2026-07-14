@@ -13,7 +13,7 @@ class VendorsPage extends ConsumerWidget {
   Future<void> _exportCsv(BuildContext context, WidgetRef ref) async {
     final t = AppLocalizations.of(context);
     try {
-      final entities = await ref.read(directoryProvider('payable').future);
+      final entities = await ref.read(directoryProvider('vendors').future);
       
       final buffer = StringBuffer();
       buffer.writeln('Vendor Name,Total Invoices,Total Spend (DZD),Pending Invoices');
@@ -55,13 +55,13 @@ class VendorsPage extends ConsumerWidget {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => NewContractorDialog(title: t?.addVendor ?? 'Add Vendor'),
+                builder: (context) => NewContractorDialog(title: t?.addVendor ?? 'Add Vendor', table: 'vendors'),
               );
             },
           ),
         ],
       ),
-      body: const DirectoryListView(type: 'payable'),
+      body: const DirectoryListView(table: 'vendors'),
     );
   }
 }

@@ -1,6 +1,6 @@
 class PurchaseOrderModel {
   final String id;
-  final String? contractorId;
+  final String? vendorId;
   final String poNumber;
   final String status;
   final double totalAmount;
@@ -11,7 +11,7 @@ class PurchaseOrderModel {
 
   PurchaseOrderModel({
     required this.id,
-    this.contractorId,
+    this.vendorId,
     required this.poNumber,
     this.status = 'draft',
     this.totalAmount = 0.0,
@@ -24,7 +24,7 @@ class PurchaseOrderModel {
   factory PurchaseOrderModel.fromJson(Map<String, dynamic> json) {
     return PurchaseOrderModel(
       id: json['id'],
-      contractorId: json['contractor_id'],
+      vendorId: json['vendor_id'],
       poNumber: json['po_number'],
       status: json['status'] ?? 'draft',
       totalAmount: (json['total_amount'] as num?)?.toDouble() ?? 0.0,
@@ -38,7 +38,7 @@ class PurchaseOrderModel {
   Map<String, dynamic> toJson() {
     return {
       if (id.isNotEmpty) 'id': id,
-      'contractor_id': contractorId,
+      'vendor_id': vendorId,
       'po_number': poNumber,
       'status': status,
       'total_amount': totalAmount,

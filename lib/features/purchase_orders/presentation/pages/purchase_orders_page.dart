@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../providers/purchase_orders_provider.dart';
 import '../widgets/new_purchase_order_dialog.dart';
@@ -32,7 +34,7 @@ class PurchaseOrdersPage extends ConsumerWidget {
                 subtitle: Text('Total: ${po.totalAmount.toStringAsFixed(2)} DA'),
                 trailing: Chip(label: Text(po.status)),
                 onTap: () {
-                  // TODO: Navigate to PO detail
+                  context.push('/purchase-orders/${po.id}');
                 },
               );
             },

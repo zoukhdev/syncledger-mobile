@@ -13,7 +13,7 @@ class ClientsPage extends ConsumerWidget {
   Future<void> _exportCsv(BuildContext context, WidgetRef ref) async {
     final t = AppLocalizations.of(context);
     try {
-      final entities = await ref.read(directoryProvider('receivable').future);
+      final entities = await ref.read(directoryProvider('contractors').future);
       
       final buffer = StringBuffer();
       buffer.writeln('Vendor Name,Total Invoices,Total Spend (DZD),Pending Invoices');
@@ -61,7 +61,7 @@ class ClientsPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: const DirectoryListView(type: 'receivable'),
+      body: const DirectoryListView(table: 'contractors'),
     );
   }
 }

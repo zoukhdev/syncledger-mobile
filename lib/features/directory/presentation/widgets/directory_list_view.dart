@@ -26,29 +26,29 @@ class DirectoryEntity {
   int get activeInvoices => invoices.where((i) => i.status == 'pending_approval' || i.status == 'pending_payment').length;
 }
 
-final directoryProvider = FutureProvider.family<List<DirectoryEntity>, String>((ref, type) async {
-  final contractorsResponse = await Supabase.instance.client
-      .from('contractors')
+final directoryProvider = FutureProvider.family<List<DirectoryEntity>, String>((ref, table) async {
+  final response = await Supabase.instance.client
+      .from(table)
       .select('*, invoices(*)')
       .order('created_at', ascending: false);
 
-  final rawContractors = contractorsResponse as List;
+  final rawData = response as List;
   
   final List<DirectoryEntity> entities = [];
   
-  for (var contractor in rawContractors) {
-    final rawInvoices = contractor['invoices'] as List? ?? [];
+  for (var entityData in rawData) {
+    final rawInvoices = entityData['invoices'] as List? ?? [];
     final allInvoices = rawInvoices.map((e) => InvoiceModel.fromJson(e)).toList();
     
-    // Filter invoices by type (receivable for clients, payable for vendors)
-    final typedInvoices = allInvoices.where((inv) => inv.invoiceType == type).toList();
+    // Contractors and Vendors both typically have payable invoices (for their services/materials)
+    final typedInvoices = allInvoices.where((inv) => inv.invoiceType == 'payable').toList();
     
     entities.add(DirectoryEntity(
-      id: contractor['id'],
-      name: contractor['company_name'],
-      contactName: contractor['contact_name'],
-      email: contractor['email'],
-      phone: contractor['phone'],
+      id: entityData['id'],
+      name: entityData['company_name'],
+      contactName: entityData['contact_name'],
+      email: entityData['email'],
+      phone: entityData['phone'],
       invoices: typedInvoices,
     ));
   }
@@ -60,8 +60,8 @@ final directoryProvider = FutureProvider.family<List<DirectoryEntity>, String>((
 });
 
 class DirectoryListView extends ConsumerWidget {
-  final String type; // 'receivable' for clients, 'payable' for vendors
-  const DirectoryListView({super.key, required this.type});
+  final String table; // 'contractors' or 'vendors'
+  const DirectoryListView({super.key, required this.table});
 
   void _showDetails(BuildContext context, DirectoryEntity entity) {
     showModalBottomSheet(
@@ -74,7 +74,7 @@ class DirectoryListView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncData = ref.watch(directoryProvider(type));
+    final asyncData = ref.watch(directoryProvider(table));
     final t = AppLocalizations.of(context);
 
     return asyncData.when(

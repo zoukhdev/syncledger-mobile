@@ -6,8 +6,9 @@ import 'directory_list_view.dart';
 
 class NewContractorDialog extends ConsumerStatefulWidget {
   final String? title;
+  final String table;
 
-  const NewContractorDialog({super.key, this.title});
+  const NewContractorDialog({super.key, this.title, this.table = 'contractors'});
 
   @override
   ConsumerState<NewContractorDialog> createState() => _NewContractorDialogState();
@@ -28,7 +29,7 @@ class _NewContractorDialogState extends ConsumerState<NewContractorDialog> {
     setState(() => _isSubmitting = true);
 
     try {
-      await Supabase.instance.client.from('contractors').insert({
+      await Supabase.instance.client.from(widget.table).insert({
         'company_name': _companyName,
         'contact_name': _contactName.isEmpty ? null : _contactName,
         'email': _email.isEmpty ? null : _email,
@@ -36,9 +37,7 @@ class _NewContractorDialogState extends ConsumerState<NewContractorDialog> {
       });
       
       // Invalidate the provider to refresh the list
-      // Since directoryProvider is family, we invalidate both types
-      ref.invalidate(directoryProvider('payable'));
-      ref.invalidate(directoryProvider('receivable'));
+      ref.invalidate(directoryProvider(widget.table));
       
       if (mounted) {
         Navigator.of(context).pop();
