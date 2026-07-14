@@ -2,7 +2,7 @@
   "appTitle": "إكوينوكس",
   "overview": "نظرة عامة",
   "invoices": "الفواتير",
-  "clients": "العملاء",
+  "clients": "المقاولين",
   "vendors": "الموردين",
   "contracts": "العقود",
   "caisse": "الصندوق",
@@ -87,6 +87,7 @@
   "cancel": "إلغاء",
 
   "addContractor": "إضافة مقاول",
+  "addVendor": "إضافة مورد",
   "exportDirectory": "تصدير الدليل",
   "companyName": "اسم الشركة",
   "contactName": "اسم جهة الاتصال",

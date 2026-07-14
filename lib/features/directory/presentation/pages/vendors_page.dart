@@ -51,11 +51,11 @@ class VendorsPage extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.add),
-            tooltip: t?.addContractor ?? 'Add Contractor',
+            tooltip: t?.addVendor ?? 'Add Vendor',
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => const NewContractorDialog(),
+                builder: (context) => NewContractorDialog(title: t?.addVendor ?? 'Add Vendor'),
               );
             },
           ),

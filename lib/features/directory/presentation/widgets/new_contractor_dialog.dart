@@ -5,7 +5,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'directory_list_view.dart';
 
 class NewContractorDialog extends ConsumerStatefulWidget {
-  const NewContractorDialog({super.key});
+  final String? title;
+
+  const NewContractorDialog({super.key, this.title});
 
   @override
   ConsumerState<NewContractorDialog> createState() => _NewContractorDialogState();
@@ -60,7 +62,7 @@ class _NewContractorDialogState extends ConsumerState<NewContractorDialog> {
     final theme = Theme.of(context);
 
     return AlertDialog(
-      title: Text(t?.addContractor ?? 'Add Contractor'),
+      title: Text(widget.title ?? t?.addContractor ?? 'Add Contractor'),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,

@@ -2,7 +2,7 @@
   "appTitle": "Equinox",
   "overview": "Aperçu",
   "invoices": "Factures",
-  "clients": "Clients",
+  "clients": "Entrepreneurs",
   "vendors": "Fournisseurs",
   "contracts": "Contrats",
   "caisse": "Caisse",
@@ -87,6 +87,7 @@
   "cancel": "Annuler",
 
   "addContractor": "Ajouter un entrepreneur",
+  "addVendor": "Ajouter un fournisseur",
   "exportDirectory": "Exporter le répertoire",
   "companyName": "Nom de l'entreprise",
   "contactName": "Nom du contact",

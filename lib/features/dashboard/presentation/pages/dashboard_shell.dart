@@ -41,10 +41,8 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
   void didUpdateWidget(DashboardShell oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.navigationShell.currentIndex != oldWidget.navigationShell.currentIndex) {
-      _pageController.animateToPage(
+      _pageController.jumpToPage(
         widget.navigationShell.currentIndex,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
       );
     }
   }
@@ -102,19 +100,19 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
           Navigator.pop(context); // close drawer
           final isOwner = userState.value?.role == 'owner';
           if (index == 0) {
-            context.push('/registers');
+            context.push('/analytics');
           } else if (index == 1) {
             context.push('/contracts');
           } else if (index == 2) {
             context.push('/purchase-orders');
           } else if (index == 3) {
-            context.push('/analytics');
+            context.push('/registers');
           } else if (index == 4) {
             context.push('/caisse');
           } else if (isOwner && index == 5) {
-            context.push('/audit');
-          } else if (isOwner && index == 6) {
             context.push('/staff');
+          } else if (isOwner && index == 6) {
+            context.push('/audit');
           } else if ((isOwner && index == 7) || (!isOwner && index == 5)) {
             context.push('/settings');
           }
@@ -153,9 +151,9 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
             child: Divider(),
           ),
             NavigationDrawerDestination(
-              icon: const Icon(Icons.wallet_outlined),
-              selectedIcon: const Icon(Icons.wallet),
-              label: Text(AppLocalizations.of(context)?.cashRegisters ?? 'Cash Registers'),
+              icon: const Icon(Icons.bar_chart),
+              selectedIcon: const Icon(Icons.bar_chart),
+              label: Text(AppLocalizations.of(context)!.analyticsTab),
             ),
             NavigationDrawerDestination(
               icon: const Icon(Icons.description_outlined),
@@ -168,9 +166,9 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
               label: Text(AppLocalizations.of(context)?.purchaseOrders ?? 'Purchase Orders'),
             ),
             NavigationDrawerDestination(
-              icon: const Icon(Icons.bar_chart),
-              selectedIcon: const Icon(Icons.bar_chart),
-              label: Text(AppLocalizations.of(context)!.analyticsTab),
+              icon: const Icon(Icons.wallet_outlined),
+              selectedIcon: const Icon(Icons.wallet),
+              label: Text(AppLocalizations.of(context)?.cashRegisters ?? 'Cash Registers'),
             ),
             NavigationDrawerDestination(
               icon: const Icon(Icons.archive_outlined),
@@ -179,14 +177,14 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
             ),
             if (userState.value?.role == 'owner') ...[
               NavigationDrawerDestination(
-                icon: const Icon(Icons.history_outlined),
-                selectedIcon: const Icon(Icons.history),
-                label: Text(AppLocalizations.of(context)?.auditLogs ?? 'Audit Logs'),
-              ),
-              NavigationDrawerDestination(
                 icon: const Icon(Icons.people_outlined),
                 selectedIcon: const Icon(Icons.people),
                 label: Text(AppLocalizations.of(context)?.staff ?? 'Staff'),
+              ),
+              NavigationDrawerDestination(
+                icon: const Icon(Icons.history_outlined),
+                selectedIcon: const Icon(Icons.history),
+                label: Text(AppLocalizations.of(context)?.auditLogs ?? 'Audit Logs'),
               ),
             ],
             const Padding(
@@ -234,7 +232,7 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
           NavigationDestination(
             icon: const Icon(Icons.people_alt_outlined),
             selectedIcon: const Icon(Icons.people_alt),
-            label: AppLocalizations.of(context)?.clients ?? 'Clients',
+            label: AppLocalizations.of(context)?.clients ?? 'Contractors',
           ),
           NavigationDestination(
             icon: const Icon(Icons.storefront_outlined),
