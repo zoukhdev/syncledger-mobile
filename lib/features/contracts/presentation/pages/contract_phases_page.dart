@@ -89,103 +89,291 @@ class ContractPhasesPage extends ConsumerWidget {
     final phasesAsync = ref.watch(contractPhasesProvider(contract.id));
 
     return Scaffold(
+      backgroundColor: const Color(0xFFFAF9FA),
       appBar: AppBar(
-        title: Text(t?.paymentPhases ?? 'Payment Phases'),
+        backgroundColor: const Color(0xFFFAF9FA),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF094CB2)), // text-primary
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Payment Phases',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            letterSpacing: -0.5,
+            color: Color(0xFF1B1C1D), // text-on-background
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search, color: Color(0xFF094CB2)),
+            onPressed: () {},
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF094CB2), // bg-primary
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         onPressed: () => _showAddPhaseDialog(context, ref),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              padding: const EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    contract.contractTitle, 
-                    style: const TextStyle(
-                      fontSize: 20, 
-                      fontWeight: FontWeight.bold, 
-                      color: Color(0xFF111827)
-                    )
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Total: ${contract.totalAmount.toStringAsFixed(2)} DZD', 
-                    style: const TextStyle(
-                      fontSize: 18, 
-                      fontWeight: FontWeight.w800, 
-                      color: Color(0xFF0052CC)
-                    )
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const Divider(),
-          Expanded(
-            child: phasesAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error: $err')),
-              data: (phases) {
-                if (phases.isEmpty) {
-                  return Center(child: Text(t?.noPhasesDefined ?? 'No phases defined for this contract.'));
-                }
-                
-                double allocated = phases.fold(0.0, (sum, phase) => sum + ((phase['amount'] as num?)?.toDouble() ?? 0.0));
-                double remaining = contract.totalAmount - allocated;
+      body: phasesAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('Error: $err')),
+        data: (phases) {
+          double allocated = phases.fold(0.0, (sum, phase) => sum + ((phase['amount'] as num?)?.toDouble() ?? 0.0));
+          double remaining = contract.totalAmount - allocated;
 
-                return Column(
+          return ListView(
+            padding: const EdgeInsets.all(24.0),
+            children: [
+              // Hero Summary Section
+              Container(
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFC3C6D5).withOpacity(0.3)), // outline-variant/15
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    )
+                  ]
+                ),
+                child: Row(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${t?.allocated ?? 'Allocated:'} ${allocated.toStringAsFixed(2)} DZD', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-                          Text('${t?.netRemaining ?? 'Net Remaining:'} ${remaining.toStringAsFixed(2)} DZD', style: TextStyle(color: remaining < 0 ? Colors.red : Colors.orange, fontWeight: FontWeight.bold)),
+                          const Text(
+                            'TOTAL ALLOCATED',
+                            style: TextStyle(
+                              fontFamily: 'Inter', // mapped from label
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.0,
+                              color: Color(0xFF434653), // text-on-surface-variant
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${allocated.toStringAsFixed(2)} DZD',
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 32, // Display size
+                              fontWeight: FontWeight.w900, // Black
+                              color: Color(0xFF094CB2), // text-primary
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ],
                       ),
                     ),
+                    Container(
+                      width: 1,
+                      height: 64,
+                      color: const Color(0xFFC3C6D5).withOpacity(0.3),
+                      margin: const EdgeInsets.symmetric(horizontal: 24),
+                    ),
                     Expanded(
-                      child: ListView.builder(
-                        itemCount: phases.length,
-                        itemBuilder: (context, index) {
-                          final phase = phases[index];
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: phase['status'] == 'completed' ? Colors.green : Colors.orange,
-                              child: Icon(phase['status'] == 'completed' ? Icons.check : Icons.hourglass_empty, color: Colors.white, size: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'NET REMAINING',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.0,
+                              color: Color(0xFF434653),
                             ),
-                            title: Text(phase['phase_name'] ?? 'Unknown Phase', style: const TextStyle(fontWeight: FontWeight.w600)),
-                            subtitle: Text('Status: ${phase['status'] ?? 'pending'}'),
-                            trailing: Text('${(phase['amount'] as num?)?.toDouble().toStringAsFixed(2) ?? '0.00'} DZD', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0052CC))),
-                          );
-                        },
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${remaining.toStringAsFixed(2)} DZD',
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF6D5E00), // text-tertiary
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
                   ],
-                );
-              },
-            ),
-          ),
-        ],
+                ),
+              ),
+              const SizedBox(height: 32),
+              
+              const Text(
+                'Project Timeline',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
+                  color: Color(0xFF1B1C1D),
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              if (phases.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFC3C6D5).withOpacity(0.3)),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'No phases defined yet.',
+                      style: TextStyle(color: Color(0xFF434653), fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                )
+              else
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: phases.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    final phase = phases[index];
+                    final isCompleted = phase['status'] == 'completed';
+                    
+                    return Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFC3C6D5).withOpacity(0.3)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.02),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          )
+                        ]
+                      ),
+                      child: Row(
+                        children: [
+                          // Icon container
+                          Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE3E2E3), // bg-surface-variant
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              isCompleted ? Icons.check_circle : Icons.hourglass_empty,
+                              color: const Color(0xFF737784), // text-outline
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          
+                          // Title & Badge
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        phase['phase_name'] ?? 'Phase',
+                                        style: const TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF1B1C1D),
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFE3E2E3), // bg-surface-variant
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(color: const Color(0xFFC3C6D5).withOpacity(0.2)),
+                                      ),
+                                      child: Text(
+                                        (phase['status'] ?? 'pending').toUpperCase(),
+                                        style: const TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF434653), // text-on-surface-variant
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Development and core feature implementation.', // Or phase description if added to db
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 14,
+                                    color: Color(0xFF434653),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          const SizedBox(width: 24),
+                          
+                          // Allocated amount
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              const Text(
+                                'ALLOCATED',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.0,
+                                  color: Color(0xFF434653),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${(phase['amount'] as num?)?.toDouble().toStringAsFixed(2) ?? '0.00'} DZD',
+                                style: const TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1B1C1D),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+            ],
+          );
+        },
       ),
     );
   }
