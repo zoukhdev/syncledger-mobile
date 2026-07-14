@@ -170,7 +170,26 @@ class _CaissePageState extends ConsumerState<CaissePage> {
     final asyncData = ref.watch(caisseProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Caisse (Cash Box)')),
+      backgroundColor: const Color(0xFFF7F9FB),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: const BackButton(color: Color(0xFF191C1E)),
+        title: const Text(
+          'Caisse (Cash Box)',
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+            color: Color(0xFF191C1E),
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search, color: Color(0xFF191C1E)),
+            onPressed: () {},
+          ),
+        ],
+      ),
       body: asyncData.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('Error: $err')),
@@ -181,36 +200,104 @@ class _CaissePageState extends ConsumerState<CaissePage> {
           if (registers.isEmpty) return const Center(child: Text('No cash registers found.'));
 
           final register = registers.first;
+          
+          String formattedLastReconciled = 'Never';
+          if (register['last_reconciled_at'] != null) {
+            final date = DateTime.parse(register['last_reconciled_at']).toLocal();
+            formattedLastReconciled = DateFormat('yyyy-MM-dd HH:mm:ss').format(date);
+          }
 
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Card(
+                padding: const EdgeInsets.all(20.0),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0F172A).withOpacity(0.05),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(24.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Register: ${register['name']}', style: Theme.of(context).textTheme.titleMedium),
+                        Text(
+                          'Register: ${register['name']}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                            color: Color(0xFF7C839B),
+                          ),
+                        ),
                         const SizedBox(height: 8),
-                        Text('Balance: ${register['balance']} ${register['currency']}', style: Theme.of(context).textTheme.headlineMedium),
-                        const SizedBox(height: 8),
-                        Text('Last Reconciled: ${register['last_reconciled_at'] != null ? DateTime.parse(register['last_reconciled_at']).toLocal().toString() : 'Never'}', style: const TextStyle(color: Colors.grey)),
-                        const SizedBox(height: 16),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
+                        Text(
+                          'Balance: ${register['balance'].toStringAsFixed(2)} ${register['currency']}',
+                          style: const TextStyle(
+                            fontSize: 28, // Using a slightly smaller size than 32 to fit on narrow screens safely
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.5,
+                            color: Color(0xFF191C1E),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Last Reconciled: $formattedLastReconciled',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF76777D),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
                           children: [
-                            ElevatedButton.icon(
-                              onPressed: () => _showAddTransactionDialog(context, register['id']),
-                              icon: const Icon(Icons.add),
-                              label: Text(AppLocalizations.of(context)?.addContractor ?? 'New Transaction'), // Temporary fallback or new string
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () => _showAddTransactionDialog(context, register['id']),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF131B2E), // Primary Navy
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  elevation: 0,
+                                ),
+                                child: const Text(
+                                  'Add Transaction',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                ),
+                              ),
                             ),
-                            OutlinedButton.icon(
-                              onPressed: () => _showReconcileDialog(context, register),
-                              icon: const Icon(Icons.check_circle_outline),
-                              label: Text(AppLocalizations.of(context)?.caisse ?? 'Reconcile'), // Add string 'reconcile' later
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () => _showReconcileDialog(context, register),
+                                icon: const Icon(Icons.check_circle_outline, size: 18),
+                                label: const Text(
+                                  'Reconcile',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF6CF8BB).withOpacity(0.2), // Light Green bg
+                                  foregroundColor: const Color(0xFF006C49), // Dark Green text
+                                  side: BorderSide(color: const Color(0xFF006C49).withOpacity(0.2)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  elevation: 0,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -219,31 +306,109 @@ class _CaissePageState extends ConsumerState<CaissePage> {
                   ),
                 ),
               ),
-              const Divider(),
               Expanded(
                 child: transactions.isEmpty
-                    ? const Center(child: Text('No transactions yet.'))
-                    : ListView.builder(
+                    ? const Center(child: Text('No transactions yet.', style: TextStyle(color: Colors.grey)))
+                    : ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                         itemCount: transactions.length,
+                        separatorBuilder: (context, index) => const SizedBox(height: 16),
                         itemBuilder: (context, index) {
                           final tx = transactions[index];
                           final isOut = tx['transaction_type'] == 'out';
                           final isRec = tx['transaction_type'] == 'reconciliation';
+                          final isNegativeRec = isRec && (tx['amount'] < 0);
+                          final isError = isOut || isNegativeRec;
+                          
+                          final color = isError ? const Color(0xFFBA1A1A) : const Color(0xFF006C49);
+                          final iconData = isOut ? Icons.arrow_upward : (isRec ? Icons.sync : Icons.arrow_downward);
 
-                          return ListTile(
-                            leading: Icon(
-                              isOut ? Icons.arrow_upward : (isRec ? Icons.sync : Icons.arrow_downward),
-                              color: isOut || (isRec && tx['amount'] < 0) ? Colors.red : Colors.green,
+                          // Attempt to parse expected vs actual from description if it's a reconciliation
+                          String desc = tx['description'] ?? '';
+                          String? expectedStr;
+                          String? actualStr;
+                          
+                          if (isRec && desc.contains('Expected:') && desc.contains('Actual:')) {
+                            final expMatch = RegExp(r'Expected: ([\d.]+)').firstMatch(desc);
+                            final actMatch = RegExp(r'Actual: ([\d.]+)').firstMatch(desc);
+                            if (expMatch != null && actMatch != null) {
+                              expectedStr = expMatch.group(1);
+                              actualStr = actMatch.group(1);
+                              desc = 'Reconciliation discrepancy.';
+                            }
+                          }
+
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF0F172A).withOpacity(0.05),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
-                            title: Text(tx['description']),
-                            subtitle: Text(DateTime.parse(tx['created_at']).toLocal().toString()),
-                            trailing: Text(
-                              '${tx['amount']} ${register['currency']}',
-                              style: TextStyle(
-                                color: isOut || (isRec && tx['amount'] < 0) ? Colors.red : Colors.green,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(iconData, color: color, size: 24),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        desc,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF191C1E),
+                                        ),
+                                      ),
+                                      if (isRec && expectedStr != null && actualStr != null) ...[
+                                        const SizedBox(height: 8),
+                                        Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF2F4F6),
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: const Color(0xFFC6C6CD).withOpacity(0.3)),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text('Expected: $expectedStr', style: const TextStyle(fontSize: 14, color: Color(0xFF191C1E))),
+                                              const SizedBox(height: 4),
+                                              Text('Actual: $actualStr', style: const TextStyle(fontSize: 14, color: Color(0xFF191C1E))),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        DateTime.parse(tx['created_at']).toLocal().toString(),
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: Color(0xFF76777D),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  '${tx['amount']} ${register['currency']}',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: color,
+                                  ),
+                                ),
+                              ],
                             ),
                           );
                         },
