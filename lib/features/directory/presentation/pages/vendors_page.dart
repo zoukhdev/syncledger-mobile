@@ -41,27 +41,59 @@ class VendorsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     return Scaffold(
+      backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
-        title: Text(t?.vendors ?? 'Vendors Directory'),
+        backgroundColor: const Color(0xFFF9FAFB),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.search, color: Colors.black87),
+          onPressed: () {
+            // Placeholder for search action
+          },
+        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.download),
-            tooltip: t?.exportDirectory ?? 'Export Directory',
-            onPressed: () => _exportCsv(context, ref),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: t?.addVendor ?? 'Add Vendor',
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => NewContractorDialog(title: t?.addVendor ?? 'Add Vendor', table: 'vendors'),
-              );
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: Colors.black87),
+            onSelected: (value) {
+              if (value == 'export') {
+                _exportCsv(context, ref);
+              }
             },
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem<String>(
+                  value: 'export',
+                  child: Text(t?.exportDirectory ?? 'Export CSV'),
+                ),
+              ];
+            },
+          ),
+          const Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: CircleAvatar(
+              backgroundColor: Color(0xFFE5E7EB),
+              backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=12'), // Placeholder avatar
+            ),
           ),
         ],
       ),
-      body: const DirectoryListView(table: 'vendors'),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF0052CC),
+        shape: const CircleBorder(),
+        tooltip: t?.addVendor ?? 'Add Vendor',
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            builder: (context) => NewContractorDialog(title: t?.addVendor ?? 'Add Vendor', table: 'vendors'),
+          );
+        },
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
+      ),
+      body: const DirectoryListView(table: 'vendors', title: 'Vendors'),
     );
   }
 }

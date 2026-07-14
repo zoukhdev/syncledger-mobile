@@ -213,30 +213,33 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
         onPageChanged: _onPageChanged,
         children: widget.children,
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: widget.navigationShell.currentIndex,
-        onDestinationSelected: (index) => _onTap(context, index),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: widget.navigationShell.currentIndex,
+        onTap: (index) => _onTap(context, index),
         backgroundColor: theme.colorScheme.surface,
-        indicatorColor: theme.colorScheme.primary.withOpacity(0.1),
-        destinations: [
-          NavigationDestination(
+        selectedItemColor: const Color(0xFF1976D2), // Professional blue
+        unselectedItemColor: Colors.grey,
+        showUnselectedLabels: true,
+        items: [
+          BottomNavigationBarItem(
             icon: const Icon(Icons.space_dashboard_outlined),
-            selectedIcon: const Icon(Icons.space_dashboard),
+            activeIcon: const Icon(Icons.space_dashboard),
             label: AppLocalizations.of(context)?.overview ?? 'Overview',
           ),
-          NavigationDestination(
+          BottomNavigationBarItem(
             icon: const Icon(Icons.receipt_long_outlined),
-            selectedIcon: const Icon(Icons.receipt_long),
+            activeIcon: const Icon(Icons.receipt_long),
             label: AppLocalizations.of(context)?.invoices ?? 'Invoices',
           ),
-          NavigationDestination(
+          BottomNavigationBarItem(
             icon: const Icon(Icons.people_alt_outlined),
-            selectedIcon: const Icon(Icons.people_alt),
+            activeIcon: const Icon(Icons.people_alt),
             label: AppLocalizations.of(context)?.clients ?? 'Contractors',
           ),
-          NavigationDestination(
+          BottomNavigationBarItem(
             icon: const Icon(Icons.storefront_outlined),
-            selectedIcon: const Icon(Icons.storefront),
+            activeIcon: const Icon(Icons.storefront),
             label: AppLocalizations.of(context)?.vendors ?? 'Vendors',
           ),
         ],

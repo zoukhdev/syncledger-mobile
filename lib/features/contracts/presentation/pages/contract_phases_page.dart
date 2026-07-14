@@ -101,18 +101,40 @@ class ContractPhasesPage extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Card(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(contract.contractTitle, style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 8),
-                    Text('Total: ${contract.totalAmount.toStringAsFixed(2)} DZD', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  ],
-                ),
+            child: Container(
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    contract.contractTitle, 
+                    style: const TextStyle(
+                      fontSize: 20, 
+                      fontWeight: FontWeight.bold, 
+                      color: Color(0xFF111827)
+                    )
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Total: ${contract.totalAmount.toStringAsFixed(2)} DZD', 
+                    style: const TextStyle(
+                      fontSize: 18, 
+                      fontWeight: FontWeight.w800, 
+                      color: Color(0xFF0052CC)
+                    )
+                  ),
+                ],
               ),
             ),
           ),
@@ -151,9 +173,9 @@ class ContractPhasesPage extends ConsumerWidget {
                               backgroundColor: phase['status'] == 'completed' ? Colors.green : Colors.orange,
                               child: Icon(phase['status'] == 'completed' ? Icons.check : Icons.hourglass_empty, color: Colors.white, size: 20),
                             ),
-                            title: Text(phase['phase_name']),
+                            title: Text(phase['phase_name'] ?? 'Unknown Phase', style: const TextStyle(fontWeight: FontWeight.w600)),
                             subtitle: Text('Status: ${phase['status'] ?? 'pending'}'),
-                            trailing: Text('${phase['amount']} DZD', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            trailing: Text('${(phase['amount'] as num?)?.toDouble().toStringAsFixed(2) ?? '0.00'} DZD', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0052CC))),
                           );
                         },
                       ),

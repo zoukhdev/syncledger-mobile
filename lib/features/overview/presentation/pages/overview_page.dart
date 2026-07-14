@@ -139,9 +139,36 @@ class OverviewPage extends ConsumerWidget {
                       spacing: 16,
                       runSpacing: 16,
                       children: [
-                        _buildMetricCard(context, t?.totalCollectedRevenue ?? 'Total Collected Revenue', data['revenue'], Icons.attach_money, Colors.green, cardWidth),
-                        _buildMetricCard(context, t?.pendingReceivables ?? 'Pending Receivables', data['receivables'], Icons.arrow_downward, Colors.blue, cardWidth),
-                        _buildMetricCard(context, t?.pendingPayables ?? 'Pending Payables', data['payables'], Icons.arrow_upward, Colors.orange, cardWidth),
+                        _buildMetricCard(
+                          context, 
+                          t?.totalCollectedRevenue ?? 'Total Collected Revenue', 
+                          data['revenue'], 
+                          Icons.arrow_upward, 
+                          const Color(0xFF4CAF50), 
+                          [const Color(0xFFE8F5E9), const Color(0xFFC8E6C9)], 
+                          true,
+                          cardWidth,
+                        ),
+                        _buildMetricCard(
+                          context, 
+                          t?.pendingReceivables ?? 'Pending Receivables', 
+                          data['receivables'], 
+                          Icons.arrow_downward, 
+                          const Color(0xFF2196F3), 
+                          [const Color(0xFFE3F2FD), const Color(0xFFBBDEFB)], 
+                          false,
+                          cardWidth,
+                        ),
+                        _buildMetricCard(
+                          context, 
+                          t?.pendingPayables ?? 'Pending Payables', 
+                          data['payables'], 
+                          Icons.arrow_upward, 
+                          const Color(0xFFFF9800), 
+                          [const Color(0xFFFFF3E0), const Color(0xFFFFE0B2)], 
+                          false,
+                          double.infinity,
+                        ),
                       ],
                     );
                   },
@@ -194,7 +221,7 @@ class OverviewPage extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(t?.activeContracts ?? 'Active Contracts', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                    Text('Recent Contracts', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600, fontSize: 20)),
                     TextButton(
                       onPressed: () => context.push('/contracts'),
                       child: Text(t?.viewAll ?? 'View All'),
@@ -246,10 +273,10 @@ class OverviewPage extends ConsumerWidget {
 
     return AspectRatio(
       aspectRatio: 1.5,
-      child: Card(
-        elevation: 0,
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: LineChart(
@@ -288,7 +315,14 @@ class OverviewPage extends ConsumerWidget {
                   dotData: const FlDotData(show: true),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    gradient: LinearGradient(
+                      colors: [
+                        theme.colorScheme.primary.withOpacity(0.3),
+                        theme.colorScheme.primary.withOpacity(0.0),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
                   ),
                 ),
               ],
@@ -299,35 +333,60 @@ class OverviewPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildMetricCard(BuildContext context, String title, double value, IconData icon, Color color, [double? width]) {
-    final t = AppLocalizations.of(context);
-    return SizedBox(
+  Widget _buildMetricCard(BuildContext context, String title, double value, IconData icon, Color iconColor, List<Color> gradientColors, bool isRevenue, [double? width]) {
+    return Container(
       width: width,
-      child: Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: color, size: 24),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title, 
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text('${value.toStringAsFixed(2)} DZD', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
-          ],
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: gradientColors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4))],
       ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: iconColor, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title, 
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.black87,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Text(
+                  '${value.toStringAsFixed(2)} DZD', 
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    letterSpacing: -0.5,
+                    color: Colors.black,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Icon(isRevenue ? Icons.attach_money : Icons.account_balance_wallet_outlined, color: Colors.black54),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -342,28 +401,30 @@ class OverviewPage extends ConsumerWidget {
             child: Text(t?.noActiveContracts ?? 'No active contracts found.'),
           );
         }
-        return ListView.builder(
+        return ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
           itemCount: contracts.length > 5 ? 5 : contracts.length,
+          separatorBuilder: (context, index) => const Divider(height: 1),
           itemBuilder: (context, index) {
             final contract = contracts[index];
-            return Card(
-              margin: const EdgeInsets.only(bottom: 12),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: theme.colorScheme.primaryContainer,
-                  child: Icon(Icons.description, color: theme.colorScheme.onPrimaryContainer),
+            return ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.description_outlined, color: Colors.black87),
+              title: RichText(
+                text: TextSpan(
+                  style: const TextStyle(color: Colors.black87, fontSize: 14),
+                  children: [
+                    TextSpan(text: '${contract.contractTitle} ', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(text: '• ${contract.contractorName ?? (t?.unknownVendor ?? 'Unknown')} • '),
+                    TextSpan(text: '${contract.totalAmount.toStringAsFixed(2)} DZD'),
+                  ],
                 ),
-                title: Text(contract.contractTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text('${contract.contractorName ?? (t?.unknownVendor ?? 'Unknown Vendor')} • ${contract.totalAmount.toStringAsFixed(2)} DZD',
-                    style: TextStyle(color: theme.colorScheme.primary)),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  context.push('/contracts');
-                },
               ),
+              trailing: const Icon(Icons.chevron_right, color: Colors.black54),
+              onTap: () {
+                context.push('/contracts');
+              },
             );
           },
         );

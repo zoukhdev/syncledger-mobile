@@ -13,12 +13,23 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
     final detailAsync = ref.watch(purchaseOrderDetailProvider(poId));
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FB),
       appBar: AppBar(
-        title: const Text('Purchase Order Details'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: const BackButton(color: Color(0xFF111827)),
+        title: const Text(
+          'Purchase Order Details',
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+            color: Color(0xFF111827),
+          ),
+        ),
         actions: [
           detailAsync.maybeWhen(
             data: (detail) => IconButton(
-              icon: const Icon(Icons.picture_as_pdf),
+              icon: const Icon(Icons.picture_as_pdf_outlined, color: Color(0xFF0052CC)),
               onPressed: () => POPdfGenerator.generateAndSharePO(detail),
               tooltip: 'Generate PDF',
             ),
@@ -31,70 +42,174 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('Error loading PO details: $err')),
         data: (detail) {
           final po = detail.po;
-          return SingleChildScrollView(
+          
+          Color badgeBgColor = const Color(0xFFE2E8F0);
+          Color badgeTextColor = const Color(0xFF475569);
+          if (po.status.toLowerCase() == 'pending') {
+            badgeBgColor = const Color(0xFFFEF3C7);
+            badgeTextColor = const Color(0xFFD97706);
+          } else if (po.status.toLowerCase() == 'approved') {
+            badgeBgColor = const Color(0xFFD1FAE5);
+            badgeTextColor = const Color(0xFF059669);
+          }
+
+          return ListView(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'PO #${po.poNumber}',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            Chip(
-                              label: Text(po.status.toUpperCase()),
-                              backgroundColor: Colors.blueGrey.shade100,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        _buildDetailRow('Vendor:', detail.vendorName ?? 'N/A'),
-                        if (po.issuedAt != null) _buildDetailRow('Issue Date:', DateFormat('yyyy-MM-dd').format(po.issuedAt!)),
-                        if (po.expectedDelivery != null) _buildDetailRow('Expected Delivery:', DateFormat('yyyy-MM-dd').format(po.expectedDelivery!)),
-                        _buildDetailRow('Total Amount:', '${po.totalAmount.toStringAsFixed(2)} DZD'),
-                        if (po.notes != null && po.notes!.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          const Text('Notes:', style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text(po.notes!),
-                        ],
-                      ],
+            children: [
+              // Summary Card
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                Text('Line Items', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: detail.lineItems.length,
-                  itemBuilder: (context, index) {
-                    final item = detail.lineItems[index];
-                    final qty = (item['quantity'] as num?)?.toDouble() ?? 1.0;
-                    final price = (item['unit_price'] as num?)?.toDouble() ?? 0.0;
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ListTile(
-                        title: Text(item['description'] ?? 'No Description'),
-                        subtitle: Text('Qty: $qty x ${price.toStringAsFixed(2)} DZD'),
-                        trailing: Text(
-                          '${(qty * price).toStringAsFixed(2)} DZD',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'PO #${po.poNumber}',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF0F172A), // Primary Navy
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: badgeBgColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  po.status.toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: badgeTextColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          _buildDetailRow('Vendor', detail.vendorName ?? 'SyncLedger'),
+                          const Divider(height: 24, color: Color(0xFFF1F5F9)),
+                          _buildDetailRow('Issue Date', po.issuedAt != null ? DateFormat('yyyy-MM-dd').format(po.issuedAt!) : 'N/A'),
+                          const Divider(height: 24, color: Color(0xFFF1F5F9)),
+                          _buildDetailRow('Expected Delivery', po.expectedDelivery != null ? DateFormat('yyyy-MM-dd').format(po.expectedDelivery!) : 'N/A'),
+                        ],
+                      ),
+                    ),
+                    // Total Amount Banner
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF0F172A), // Deep Navy background
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
                         ),
                       ),
-                    );
-                  },
+                      child: Text(
+                        'Total Amount: ${po.totalAmount.toStringAsFixed(2)} DZD',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'Line Items',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF111827),
+                ),
+              ),
+              const SizedBox(height: 12),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: detail.lineItems.length,
+                itemBuilder: (context, index) {
+                  final item = detail.lineItems[index];
+                  final qty = (item['quantity'] as num?)?.toDouble() ?? 1.0;
+                  final price = (item['unit_price'] as num?)?.toDouble() ?? 0.0;
+                  final total = qty * price;
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item['description'] ?? 'No Description',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF111827),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Qty: $qty × ${price.toStringAsFixed(2)} DZD',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF6B7280),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '${total.toStringAsFixed(2)} DZD',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF0052CC), // Brand Blue
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
           );
         },
       ),
@@ -102,15 +217,26 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
   }
 
   Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          '$label:',
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF64748B), // Label Text
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B), // Value Text
+          ),
+        ),
+      ],
     );
   }
 }

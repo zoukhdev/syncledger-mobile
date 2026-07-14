@@ -55,70 +55,119 @@ class _NewContractorDialogState extends ConsumerState<NewContractorDialog> {
     }
   }
 
+  Widget _buildTextField(String label, IconData icon, {TextInputType? keyboardType, bool required = false, void Function(String?)? onSaved}) {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, size: 20),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF0052CC), width: 2),
+        ),
+      ),
+      keyboardType: keyboardType,
+      validator: required ? (val) => val == null || val.isEmpty ? 'Required' : null : null,
+      onSaved: onSaved,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final theme = Theme.of(context);
+    final isVendor = widget.table == 'vendors';
+    final defaultTitle = isVendor ? (t?.addVendor ?? 'Add Vendor') : (t?.addContractor ?? 'Add Contractor');
 
-    return AlertDialog(
-      title: Text(widget.title ?? t?.addContractor ?? 'Add Contractor'),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: t?.companyName ?? 'Company Name',
-                  border: const OutlineInputBorder(),
-                ),
-                validator: (val) => val == null || val.isEmpty ? 'Required' : null,
-                onSaved: (val) => _companyName = val ?? '',
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 12,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Grab handle for the bottom sheet
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: t?.contactName ?? 'Contact Name',
-                  border: const OutlineInputBorder(),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              widget.title ?? defaultTitle,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            _buildTextField(
+              t?.companyName ?? 'Company Name',
+              Icons.business_outlined,
+              required: true,
+              onSaved: (val) => _companyName = val ?? '',
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              t?.contactName ?? 'Contact Name',
+              Icons.person_outline,
+              onSaved: (val) => _contactName = val ?? '',
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              t?.email ?? 'Email Address',
+              Icons.email_outlined,
+              keyboardType: TextInputType.emailAddress,
+              onSaved: (val) => _email = val ?? '',
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              t?.phone ?? 'Phone Number',
+              Icons.phone_outlined,
+              keyboardType: TextInputType.phone,
+              onSaved: (val) => _phone = val ?? '',
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: _isSubmitting ? null : () => Navigator.pop(context),
+                    child: Text(t?.cancel ?? "Cancel", style: const TextStyle(color: Colors.grey)),
+                  ),
                 ),
-                onSaved: (val) => _contactName = val ?? '',
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: t?.email ?? 'Email',
-                  border: const OutlineInputBorder(),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _isSubmitting ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0052CC),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    child: _isSubmitting
+                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : Text(t?.save ?? "Save", style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ),
                 ),
-                keyboardType: TextInputType.emailAddress,
-                onSaved: (val) => _email = val ?? '',
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: t?.phone ?? 'Phone Number',
-                  border: const OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.phone,
-                onSaved: (val) => _phone = val ?? '',
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
-          child: Text(t?.cancel ?? 'Cancel', style: const TextStyle(color: Colors.grey)),
-        ),
-        ElevatedButton(
-          onPressed: _isSubmitting ? null : _submit,
-          style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary, foregroundColor: theme.colorScheme.onPrimary),
-          child: _isSubmitting
-              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-              : Text(t?.save ?? 'Save'),
-        ),
-      ],
     );
   }
 }
