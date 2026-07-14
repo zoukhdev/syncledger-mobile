@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/foundation.dart';
@@ -50,6 +51,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   Future<void> _attemptBiometricLogin({bool isAutoLogin = false}) async {
     try {
+      final session = Supabase.instance.client.auth.currentSession;
+      const secureStorage = FlutterSecureStorage();
+      final bioEmail = await secureStorage.read(key: 'bio_email');
+      final bioPassword = await secureStorage.read(key: 'bio_password');
+
+      if (session == null && (bioEmail == null || bioPassword == null)) {
+         if (!isAutoLogin && mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No biometrics setup. Please login with email first.')));
+         }
+         return;
+      }
+
       final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
       final bool canAuthenticate =
           canAuthenticateWithBiometrics || await auth.isDeviceSupported();
@@ -61,11 +74,17 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         );
         
         if (didAuthenticate) {
-           final session = Supabase.instance.client.auth.currentSession;
-           if (session != null && mounted) {
+           if (session == null && bioEmail != null && bioPassword != null) {
+              setState(() => _isLoading = true);
+              try {
+                await Supabase.instance.client.auth.signInWithPassword(email: bioEmail, password: bioPassword);
+              } finally {
+                if (mounted) setState(() => _isLoading = false);
+              }
+           }
+           
+           if (mounted) {
              context.go('/overview');
-           } else if (mounted && !isAutoLogin) {
-             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No active session. Please login with email first.')));
            }
         } else {
            if (isAutoLogin && mounted) {
@@ -91,18 +110,67 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     }
   }
 
+  Future<void> _promptBiometricSetup(String email, String password) async {
+    const secureStorage = FlutterSecureStorage();
+    final isSetup = await secureStorage.read(key: 'bio_email') != null;
+    if (isSetup) {
+      await secureStorage.write(key: 'bio_email', value: email);
+      await secureStorage.write(key: 'bio_password', value: password);
+      return;
+    }
+
+    final canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
+    if (!canAuthenticateWithBiometrics) return;
+
+    if (!mounted) return;
+
+    final enable = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Enable Biometric Login'),
+        content: const Text('Would you like to use biometrics to login faster next time?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Not Now'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Enable'),
+          ),
+        ],
+      ),
+    );
+
+    if (enable == true) {
+      final didAuth = await auth.authenticate(
+        localizedReason: 'Please authenticate to enable biometric login',
+        options: const AuthenticationOptions(biometricOnly: false, stickyAuth: true),
+      );
+      if (didAuth) {
+        await secureStorage.write(key: 'bio_email', value: email);
+        await secureStorage.write(key: 'bio_password', value: password);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Biometric login enabled!')));
+        }
+      }
+    }
+  }
+
   Future<void> _login() async {
     setState(() => _isLoading = true);
     try {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
       final response = await Supabase.instance.client.auth.signInWithPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
+        email: email,
+        password: password,
       );
       
       if (response.session != null) {
         final prefs = await SharedPreferences.getInstance();
         if (_rememberEmail) {
-          await prefs.setString('saved_email', _emailController.text.trim());
+          await prefs.setString('saved_email', email);
         } else {
           await prefs.remove('saved_email');
         }
@@ -122,7 +190,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             if (forceReset) {
               context.go('/change-password');
             } else {
-              context.go('/overview');
+              // Ask for biometric setup
+              await _promptBiometricSetup(email, password);
+              if (mounted) context.go('/overview');
             }
           }
         }
