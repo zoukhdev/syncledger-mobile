@@ -15,12 +15,12 @@ import '../../../../core/localization/locale_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 final invoicesProvider = FutureProvider<List<InvoiceModel>>((ref) async {
-  final prefs = await SharedPreferences.getInstance();
+  const secureStorage = FlutterSecureStorage();
   final connectivity = await Connectivity().checkConnectivity();
   
   if (connectivity.contains(ConnectivityResult.none)) {
-    // Offline Mode: Load from cache
-    final cachedData = prefs.getString('cached_invoices');
+    // Offline Mode: Load from secure cache
+    final cachedData = await secureStorage.read(key: 'cached_invoices');
     if (cachedData != null) {
       final List decoded = jsonDecode(cachedData);
       return decoded.map((e) => InvoiceModel.fromJson(e)).toList();
@@ -34,7 +34,7 @@ final invoicesProvider = FutureProvider<List<InvoiceModel>>((ref) async {
       .select()
       .order('created_at', ascending: false);
       
-  await prefs.setString('cached_invoices', jsonEncode(response));
+  await secureStorage.write(key: 'cached_invoices', value: jsonEncode(response));
   return (response as List).map((e) => InvoiceModel.fromJson(e)).toList();
 });
 

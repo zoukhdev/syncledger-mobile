@@ -47,7 +47,7 @@ class SyncService {
             if (await file.exists()) {
               final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
               await Supabase.instance.client.storage.from('receipts').upload(fileName, file);
-              data['document_url'] = Supabase.instance.client.storage.from('receipts').getPublicUrl(fileName);
+              data['document_url'] = await Supabase.instance.client.storage.from('receipts').createSignedUrl(fileName, 3600);
             }
           }
           

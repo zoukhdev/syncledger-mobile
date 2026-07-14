@@ -447,10 +447,10 @@ class _DocumentWorkspaceState extends ConsumerState<DocumentWorkspace> {
         final fileName = '${DateTime.now().millisecondsSinceEpoch}_${result.files.single.name}';
         
         await Supabase.instance.client.storage.from('receipts').upload(fileName, file);
-        final url = Supabase.instance.client.storage.from('receipts').getPublicUrl(fileName);
+        final urlRes = await Supabase.instance.client.storage.from('receipts').createSignedUrl(fileName, 3600);
         
         await Supabase.instance.client.from('invoices').update({
-          'document_url': url,
+          'document_url': urlRes,
         }).eq('id', widget.invoice.id);
         
         if (mounted) {
@@ -478,10 +478,10 @@ class _DocumentWorkspaceState extends ConsumerState<DocumentWorkspace> {
         final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
         
         await Supabase.instance.client.storage.from('receipts').upload(fileName, file);
-        final url = Supabase.instance.client.storage.from('receipts').getPublicUrl(fileName);
+        final urlRes = await Supabase.instance.client.storage.from('receipts').createSignedUrl(fileName, 3600);
         
         await Supabase.instance.client.from('invoices').update({
-          'document_url': url,
+          'document_url': urlRes,
         }).eq('id', widget.invoice.id);
         
         if (mounted) {

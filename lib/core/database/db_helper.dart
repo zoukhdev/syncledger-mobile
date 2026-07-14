@@ -1,5 +1,8 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
+import 'dart:math';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
@@ -13,12 +16,26 @@ class DatabaseHelper {
     return _database!;
   }
 
+  Future<String> _getEncryptionKey() async {
+    const secureStorage = FlutterSecureStorage();
+    String? key = await secureStorage.read(key: 'db_encryption_key');
+    if (key == null) {
+      final random = Random.secure();
+      final keyBytes = List<int>.generate(32, (_) => random.nextInt(256));
+      key = base64UrlEncode(keyBytes);
+      await secureStorage.write(key: 'db_encryption_key', value: key);
+    }
+    return key;
+  }
+
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
+    final encryptionKey = await _getEncryptionKey();
 
     return await openDatabase(
       path,
+      password: encryptionKey,
       version: 1,
       onCreate: _createDB,
     );

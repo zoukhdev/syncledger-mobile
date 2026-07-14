@@ -32,7 +32,13 @@ http.createServer((req, res) => {
   const ext = path.extname(filePath).slice(1).toLowerCase();
   const contentType = mimeTypes[ext] || 'application/octet-stream';
 
-  res.writeHead(200, { 'Content-Type': contentType });
+  res.writeHead(200, { 
+    'Content-Type': contentType,
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Content-Security-Policy': "default-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co wss://*.supabase.co; img-src 'self' data: blob: https://*.supabase.co",
+    'Referrer-Policy': 'strict-origin-when-cross-origin'
+  });
   fs.createReadStream(filePath).pipe(res);
 
 }).listen(8080, () => {

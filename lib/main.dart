@@ -10,9 +10,8 @@ import 'core/router/app_router.dart';
 import 'core/localization/locale_provider.dart';
 import 'features/notifications/services/notification_service.dart';
 
-// IMPORTANT: Replace with actual values injected via --dart-define or env file in a real app
-const String supabaseUrl = 'https://ptcjueqjulccrmfuyefb.supabase.co';
-const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB0Y2p1ZXFqdWxjY3JtZnV5ZWZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNjU0OTYsImV4cCI6MjA5ODk0MTQ5Nn0.eup-MO3CjVBy0dmCkWzE6K-ULCrFU3fsh8Mj7lkS_oo';
+const String supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

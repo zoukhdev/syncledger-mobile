@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -11,21 +12,25 @@ import 'package:go_router/go_router.dart';
 import '../../../contracts/providers/contracts_provider.dart';
 
 final overviewProvider = FutureProvider<Map<String, dynamic>>((ref) async {
-  final prefs = await SharedPreferences.getInstance();
+  const secureStorage = FlutterSecureStorage();
   final connectivity = await Connectivity().checkConnectivity();
   
   List invoicesRes = [];
   
   if (connectivity.contains(ConnectivityResult.none)) {
     // Offline Mode: Load from cache
-    final cachedData = prefs.getString('cached_overview_invoices');
+    final cachedData = await secureStorage.read(key: 'cached_overview_invoices');
     if (cachedData != null) {
       invoicesRes = jsonDecode(cachedData);
     }
   } else {
     // Online Mode: Fetch from Supabase and cache
     invoicesRes = await Supabase.instance.client.from('invoices').select('amount, status, invoice_type, invoice_date');
-    await prefs.setString('cached_overview_invoices', jsonEncode(invoicesRes));
+    await secureStorage.write(key: 'cached_overview_invoices', value: jsonEncode(invoicesRes));
+    
+    // Clear old SharedPreferences cache if exists (Migration)
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('cached_overview_invoices');
   }
   
   double totalRevenue = 0;

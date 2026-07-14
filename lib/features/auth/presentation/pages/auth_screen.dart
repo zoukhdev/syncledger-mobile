@@ -82,8 +82,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       }
     } catch (e) {
       debugPrint('Biometric error: $e');
-      if (isAutoLogin && mounted) {
-        context.go('/overview'); // Fallback if error occurs on simulator etc
+      if (mounted) {
+        await Supabase.instance.client.auth.signOut();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Authentication failed. Please log in again.'))
+        );
       }
     }
   }
