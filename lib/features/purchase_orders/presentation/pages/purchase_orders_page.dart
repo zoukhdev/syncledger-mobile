@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../providers/purchase_orders_provider.dart';
 import '../widgets/new_purchase_order_dialog.dart';
-import '../../domain/models/purchase_order_model.dart';
+import '../../../../domain/models/purchase_order_model.dart';
 
 class PurchaseOrdersPage extends ConsumerWidget {
   const PurchaseOrdersPage({super.key});
