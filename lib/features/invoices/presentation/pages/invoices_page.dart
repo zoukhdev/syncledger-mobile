@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../widgets/document_workspace.dart';
 import '../widgets/invoice_form_dialog.dart';
 import '../widgets/status_badge.dart';
