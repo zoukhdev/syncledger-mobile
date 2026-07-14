@@ -1,8 +1,9 @@
+import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
-import '../providers/purchase_orders_provider.dart';
+import '../presentation/providers/purchase_orders_provider.dart';
 
 class POPdfGenerator {
   static Future<void> generateAndSharePO(PurchaseOrderDetail detail, {String lang = 'en'}) async {
