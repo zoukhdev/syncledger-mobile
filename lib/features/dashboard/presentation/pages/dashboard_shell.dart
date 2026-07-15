@@ -21,30 +21,18 @@ class DashboardShell extends ConsumerStatefulWidget {
 }
 
 class _DashboardShellState extends ConsumerState<DashboardShell> {
-  late PageController _pageController;
+
 
   @override
   void initState() {
     super.initState();
     NotificationService.initialize();
-    _pageController = PageController(initialPage: widget.navigationShell.currentIndex);
   }
 
   @override
   void dispose() {
     NotificationService.dispose();
-    _pageController.dispose();
     super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(DashboardShell oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.navigationShell.currentIndex != oldWidget.navigationShell.currentIndex) {
-      _pageController.jumpToPage(
-        widget.navigationShell.currentIndex,
-      );
-    }
   }
 
   void _onTap(BuildContext context, int index) {
@@ -54,9 +42,7 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
     );
   }
 
-  void _onPageChanged(int index) {
-    widget.navigationShell.goBranch(index);
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -208,9 +194,8 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
             const SizedBox(height: 16),
           ],
         ),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
+      body: IndexedStack(
+        index: widget.navigationShell.currentIndex,
         children: widget.children,
       ),
       bottomNavigationBar: BottomNavigationBar(
