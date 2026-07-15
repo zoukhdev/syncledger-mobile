@@ -145,11 +145,50 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
     }
   }
 
+  InputDecoration _buildInputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(fontSize: 14, color: Color(0xFF737784)),
+      filled: true,
+      fillColor: const Color(0xFFF5F3F4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF094CB2), width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.red, width: 2),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.red, width: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return AlertDialog(
-      title: Text(widget.invoice == null ? (t?.createNewInvoice ?? 'Create New Invoice') : (t?.editInvoice ?? 'Edit Invoice')),
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+      actionsPadding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+      title: Text(
+        widget.invoice == null ? (t?.createNewInvoice ?? 'Create New Invoice') : (t?.editInvoice ?? 'Edit Invoice'),
+        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: Color(0xFF1B1C1D), letterSpacing: -0.5),
+      ),
       content: SizedBox(
         width: 400,
         child: Form(
@@ -157,16 +196,18 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (_isLoadingData)
-                  const Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator())
+                  const Padding(padding: EdgeInsets.all(24.0), child: Center(child: CircularProgressIndicator()))
                 else ...[
                   DropdownButtonFormField<String>(
                     value: _selectedContractId,
-                    decoration: InputDecoration(labelText: t?.contract ?? 'Contract', border: const OutlineInputBorder()),
+                    decoration: _buildInputDecoration(t?.contract ?? 'Contract'),
+                    icon: const Icon(Icons.expand_more, color: Color(0xFF737784)),
                     items: _contracts.map((c) => DropdownMenuItem<String>(
                       value: c['id'] as String,
-                      child: Text(c['contract_title'] as String),
+                      child: Text(c['contract_title'] as String, overflow: TextOverflow.ellipsis),
                     )).toList(),
                     onChanged: (val) {
                       setState(() {
@@ -179,10 +220,11 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: _selectedPhaseId,
-                    decoration: InputDecoration(labelText: t?.paymentPhase ?? 'Payment Phase', border: const OutlineInputBorder()),
+                    decoration: _buildInputDecoration(t?.paymentPhase ?? 'Payment Phase'),
+                    icon: const Icon(Icons.expand_more, color: Color(0xFF737784)),
                     items: _phases.where((p) => p['contract_id'] == _selectedContractId).map((p) => DropdownMenuItem<String>(
                       value: p['id'] as String,
-                      child: Text(p['phase_name'] as String),
+                      child: Text(p['phase_name'] as String, overflow: TextOverflow.ellipsis),
                     )).toList(),
                     onChanged: (val) {
                       setState(() => _selectedPhaseId = val);
@@ -193,7 +235,8 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                 ],
                 DropdownButtonFormField<String>(
                   value: _invoiceType,
-                  decoration: InputDecoration(labelText: t?.type ?? 'Type', border: const OutlineInputBorder()),
+                  decoration: _buildInputDecoration(t?.type ?? 'Type'),
+                  icon: const Icon(Icons.expand_more, color: Color(0xFF737784)),
                   items: [
                     DropdownMenuItem(value: 'payable', child: Text(t?.billToPay ?? 'Bill to Pay (Vendor)')),
                     DropdownMenuItem(value: 'receivable', child: Text(t?.invoiceToCollect ?? 'Invoice to Collect (Client)')),
@@ -205,13 +248,15 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _vendorController,
-                  decoration: InputDecoration(labelText: '${t?.vendorClientName ?? 'Vendor / Client Name'} *', border: const OutlineInputBorder()),
+                  decoration: _buildInputDecoration('${t?.vendorClientName ?? 'Vendor / Client Name'} *'),
+                  style: const TextStyle(color: Color(0xFF1B1C1D), fontWeight: FontWeight.w500),
                   validator: (val) => val == null || val.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _amountController,
-                  decoration: InputDecoration(labelText: '${t?.amount ?? 'Amount'} *', border: const OutlineInputBorder()),
+                  decoration: _buildInputDecoration('${t?.amount ?? 'Amount'} *'),
+                  style: const TextStyle(color: Color(0xFF1B1C1D), fontWeight: FontWeight.w500),
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Required';
@@ -227,7 +272,8 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                     Expanded(
                       child: DropdownButtonFormField<num>(
                         value: _tvaRate,
-                        decoration: InputDecoration(labelText: t?.tvaRate ?? 'TVA Rate (%)', border: const OutlineInputBorder()),
+                        decoration: _buildInputDecoration(t?.tvaRate ?? 'TVA Rate (%)'),
+                        icon: const Icon(Icons.expand_more, color: Color(0xFF737784)),
                         items: const [
                           DropdownMenuItem(value: 0, child: Text('0%')),
                           DropdownMenuItem(value: 9, child: Text('9%')),
@@ -240,15 +286,18 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                     ),
                     const SizedBox(width: 16),
                     Expanded(
+                      flex: 2,
                       child: DropdownButtonFormField<String>(
                         value: _paymentMethod,
-                        decoration: InputDecoration(labelText: t?.paymentMethod ?? 'Payment Method', border: const OutlineInputBorder()),
+                        isExpanded: true,
+                        decoration: _buildInputDecoration(t?.paymentMethod ?? 'Payment Method'),
+                        icon: const Icon(Icons.expand_more, color: Color(0xFF737784)),
                         items: [
-                          DropdownMenuItem(value: 'bank_transfer', child: Text(t?.bankTransfer ?? 'Bank Transfer')),
-                          DropdownMenuItem(value: 'cheque', child: Text(t?.cheque ?? 'Cheque')),
-                          DropdownMenuItem(value: 'cash', child: Text(t?.cash ?? 'Cash')),
-                          DropdownMenuItem(value: 'baridimob', child: Text('BaridiMob / Edahabia')),
-                          DropdownMenuItem(value: 'wimpay', child: Text('Wimpay (CPA / BNA)')),
+                          DropdownMenuItem(value: 'bank_transfer', child: Text(t?.bankTransfer ?? 'Bank Transfer', overflow: TextOverflow.ellipsis)),
+                          DropdownMenuItem(value: 'cheque', child: Text(t?.cheque ?? 'Cheque', overflow: TextOverflow.ellipsis)),
+                          DropdownMenuItem(value: 'cash', child: Text(t?.cash ?? 'Cash', overflow: TextOverflow.ellipsis)),
+                          DropdownMenuItem(value: 'baridimob', child: Text('BaridiMob', overflow: TextOverflow.ellipsis)),
+                          DropdownMenuItem(value: 'wimpay', child: Text('Wimpay', overflow: TextOverflow.ellipsis)),
                         ],
                         onChanged: (val) {
                           if (val != null) setState(() => _paymentMethod = val);
@@ -271,13 +320,14 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                           );
                           if (d != null) setState(() => _invoiceDate = d);
                         },
+                        borderRadius: BorderRadius.circular(12),
                         child: InputDecorator(
-                          decoration: const InputDecoration(labelText: 'Invoice Date', border: OutlineInputBorder()),
-                          child: Text("${_invoiceDate.day}/${_invoiceDate.month}/${_invoiceDate.year}"),
+                          decoration: _buildInputDecoration('Invoice Date'),
+                          child: Text("${_invoiceDate.day}/${_invoiceDate.month}/${_invoiceDate.year}", style: const TextStyle(color: Color(0xFF1B1C1D), fontWeight: FontWeight.w500)),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: InkWell(
                         onTap: () async {
@@ -289,25 +339,37 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                           );
                           if (d != null) setState(() => _dueDate = d);
                         },
+                        borderRadius: BorderRadius.circular(12),
                         child: InputDecorator(
-                          decoration: const InputDecoration(labelText: 'Due Date', border: OutlineInputBorder()),
-                          child: Text("${_dueDate.day}/${_dueDate.month}/${_dueDate.year}"),
+                          decoration: _buildInputDecoration('Due Date'),
+                          child: Text("${_dueDate.day}/${_dueDate.month}/${_dueDate.year}", style: const TextStyle(color: Color(0xFF1B1C1D), fontWeight: FontWeight.w500)),
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 if (_documentUrl != null)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.attachment, color: Colors.green),
-                        const SizedBox(width: 8),
-                        const Expanded(child: Text('Receipt Attached', style: TextStyle(color: Colors.green))),
-                        IconButton(icon: const Icon(Icons.close), onPressed: () => setState(() => _documentUrl = null)),
-                      ],
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.green.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                          const SizedBox(width: 12),
+                          const Expanded(child: Text('Receipt Attached successfully', style: TextStyle(color: Colors.green, fontWeight: FontWeight.w500, fontSize: 13))),
+                          InkWell(
+                            onTap: () => setState(() => _documentUrl = null),
+                            child: const Icon(Icons.close, color: Colors.green, size: 18),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 OutlinedButton.icon(
@@ -348,9 +410,16 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
                       }
                     }
                   },
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text('Scan Receipt'),
+                  icon: const Icon(Icons.document_scanner, size: 18),
+                  label: const Text('Scan Receipt', style: TextStyle(fontWeight: FontWeight.w500)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF094CB2),
+                    side: const BorderSide(color: Color(0xFF094CB2), width: 1.5),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
+                const SizedBox(height: 8),
               ],
             ),
           ),
@@ -359,11 +428,25 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          style: TextButton.styleFrom(
+            foregroundColor: const Color(0xFF434653),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w500)),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _submit,
-          child: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : Text(widget.invoice == null ? 'Create' : 'Save'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF1B1C1D),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 0,
+          ),
+          child: _isLoading 
+            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) 
+            : Text(widget.invoice == null ? 'Create' : 'Save', style: const TextStyle(fontWeight: FontWeight.w500)),
         ),
       ],
     );

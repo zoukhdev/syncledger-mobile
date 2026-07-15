@@ -184,17 +184,21 @@ class _DocumentWorkspaceState extends ConsumerState<DocumentWorkspace> {
                                     children: [
                                       const Text('TOTAL AMOUNT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF434653), letterSpacing: 0.5)),
                                       const SizedBox(height: 8),
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                                        textBaseline: TextBaseline.alphabetic,
-                                        children: [
-                                          Text(
-                                            widget.invoice.amount.toStringAsFixed(2),
-                                            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF094CB2)),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          const Text('DZD', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF434653))),
-                                        ],
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        alignment: Alignment.centerLeft,
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                                          textBaseline: TextBaseline.alphabetic,
+                                          children: [
+                                            Text(
+                                              widget.invoice.amount.toStringAsFixed(2),
+                                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF094CB2)),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            const Text('DZD', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF434653))),
+                                          ],
+                                        ),
                                       ),
                                       const SizedBox(height: 24),
                                       const Text('ISSUE DATE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF434653), letterSpacing: 0.5)),
@@ -375,63 +379,57 @@ class _DocumentWorkspaceState extends ConsumerState<DocumentWorkspace> {
                       child: Column(
                         children: [
                           // Primary Actions
-                          Row(
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            alignment: WrapAlignment.center,
                             children: [
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: _scanInvoice,
-                                  icon: const Icon(Icons.document_scanner, size: 16),
-                                  label: const Text('Scan Invoice', overflow: TextOverflow.ellipsis),
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: const Color(0xFF094CB2),
-                                    side: const BorderSide(color: Color(0xFF094CB2), width: 2),
-                                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  ),
+                              OutlinedButton.icon(
+                                onPressed: _scanInvoice,
+                                icon: const Icon(Icons.document_scanner, size: 16),
+                                label: const Text('Scan Invoice'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: const Color(0xFF094CB2),
+                                  side: const BorderSide(color: Color(0xFF094CB2), width: 2),
+                                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: () {
-                                    final progressState = ref.read(paymentsProvider(widget.invoice.id));
-                                    double maxAmount = widget.invoice.amount;
-                                    progressState.whenData((payments) {
-                                      final totalPaid = payments.fold(0.0, (sum, item) => sum + item.amount);
-                                      maxAmount = (widget.invoice.amount - totalPaid).clamp(0.0, double.infinity);
-                                    });
-                                    if (maxAmount > 0) {
-                                      _recordPaymentDialog(maxAmount);
-                                    }
-                                  },
-                                  icon: const Icon(Icons.payments, size: 16),
-                                  label: const Text('Record Payment', overflow: TextOverflow.ellipsis),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  final progressState = ref.read(paymentsProvider(widget.invoice.id));
+                                  double maxAmount = widget.invoice.amount;
+                                  progressState.whenData((payments) {
+                                    final totalPaid = payments.fold(0.0, (sum, item) => sum + item.amount);
+                                    maxAmount = (widget.invoice.amount - totalPaid).clamp(0.0, double.infinity);
+                                  });
+                                  if (maxAmount > 0) {
+                                    _recordPaymentDialog(maxAmount);
+                                  }
+                                },
+                                icon: const Icon(Icons.payments, size: 16),
+                                label: const Text('Record Payment'),
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: const Color(0xFF094CB2),
+                                  backgroundColor: const Color(0xFFE9E8E9), // surface-container-high
+                                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  elevation: 0,
+                                ),
+                              ),
+                              if (role == 'owner' || role == 'accountant')
+                                ElevatedButton.icon(
+                                  onPressed: !isApproved ? () => _updateStatus('approved') : null,
+                                  icon: const Icon(Icons.check_circle, size: 16),
+                                  label: const Text('Approve'),
                                   style: ElevatedButton.styleFrom(
-                                    foregroundColor: const Color(0xFF094CB2),
-                                    backgroundColor: const Color(0xFFE9E8E9), // surface-container-high
-                                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: const Color(0xFF094CB2),
+                                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                    elevation: 0,
+                                    elevation: 2,
                                   ),
                                 ),
-                              ),
-                              if (role == 'owner' || role == 'accountant') ...[
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: ElevatedButton.icon(
-                                    onPressed: !isApproved ? () => _updateStatus('approved') : null,
-                                    icon: const Icon(Icons.check_circle, size: 16),
-                                    label: const Text('Approve', overflow: TextOverflow.ellipsis),
-                                    style: ElevatedButton.styleFrom(
-                                      foregroundColor: Colors.white,
-                                      backgroundColor: const Color(0xFF094CB2),
-                                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                      elevation: 2,
-                                    ),
-                                  ),
-                                ),
-                              ],
                             ],
                           ),
                           
@@ -440,8 +438,10 @@ class _DocumentWorkspaceState extends ConsumerState<DocumentWorkspace> {
                             const SizedBox(height: 16),
                             const Divider(color: Color(0xFFEFEDEE)),
                             const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 24,
+                              runSpacing: 16,
                               children: [
                                 if (!isApproved) ...[
                                   _SecondaryActionButton(
@@ -450,14 +450,12 @@ class _DocumentWorkspaceState extends ConsumerState<DocumentWorkspace> {
                                     color: Colors.red,
                                     onPressed: () => _updateStatus('flagged_rejected'),
                                   ),
-                                  const SizedBox(width: 24),
                                   _SecondaryActionButton(
                                     icon: Icons.reply,
                                     label: 'Rectify',
                                     color: const Color(0xFF094CB2),
                                     onPressed: () => _updateStatus('pending_review'),
                                   ),
-                                  const SizedBox(width: 24),
                                   _SecondaryActionButton(
                                     icon: Icons.delete,
                                     label: 'Delete',
