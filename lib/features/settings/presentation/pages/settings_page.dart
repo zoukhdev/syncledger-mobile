@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../../core/theme/theme_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
+import '../../../auth/presentation/pages/mfa_setup_page.dart';
 import 'tax_settings_page.dart';
 import 'exchange_rates_page.dart';
 import 'company_docs_page.dart';
@@ -101,24 +102,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final email = userState.value?.email ?? 'Not provided';
     final role = (userState.value?.role ?? 'Staff').toUpperCase();
 
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF9FA),
+      backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFAF9FA),
+        backgroundColor: cs.surface,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF094CB2)),
+          icon: Icon(Icons.arrow_back, color: cs.primary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Settings',
           style: TextStyle(
             fontFamily: 'Inter',
             fontWeight: FontWeight.bold,
             fontSize: 24,
             letterSpacing: -0.5,
-            color: Color(0xFF1B1C1D),
+            color: cs.onSurface,
           ),
         ),
       ),
@@ -132,7 +135,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 icon: Icons.person_outline,
                 title: 'Full Name',
                 subtitle: fullName,
-                trailing: const Icon(Icons.chevron_right, color: Color(0xFF434653)),
+                trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 onTap: () {},
               ),
               _SettingsRow(
@@ -156,24 +159,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               _SettingsRow(
                 icon: Icons.security_outlined,
                 title: 'Two-Factor Authentication',
-                subtitle: 'Not configured',
+                subtitle: 'Protect your account with TOTP',
+                trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please use the Web App to configure 2FA.')));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MfaSetupPage()),
+                  );
                 },
               ),
               _SettingsRow(
                 icon: Icons.password_outlined,
                 title: 'Change Password',
                 subtitle: 'Last updated 3 months ago',
-                trailing: const Icon(Icons.chevron_right, color: Color(0xFF434653)),
+                trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 onTap: _showChangePasswordDialog,
               ),
               _SettingsRow(
                 icon: Icons.devices_outlined,
                 title: 'Active Sessions',
                 subtitle: 'Manage devices logged into your account',
-                trailing: const Icon(Icons.chevron_right, color: Color(0xFF434653)),
+                trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 showBorder: false,
                 onTap: () {},
               ),
@@ -246,25 +252,25 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               onPressed: () async {
                 await ref.read(authProvider.notifier).signOut();
               },
-              icon: const Icon(Icons.logout, color: Color(0xFFBA1A1A)),
-              label: const Text(
+              icon: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
+              label: Text(
                 'Sign Out',
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFFBA1A1A),
+                  color: Theme.of(context).colorScheme.error,
                 ),
               ),
             ),
           ),
           const SizedBox(height: 16),
-          const Center(
+          Center(
             child: Text(
               'SyncLedger v1.0.0\n© 2026 Equinox',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Public Sans',
-                color: Color(0xFF737784),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 12,
               ),
             ),
@@ -286,12 +292,12 @@ class _SectionTitle extends StatelessWidget {
       padding: const EdgeInsets.only(left: 8.0, bottom: 12.0),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'Inter',
           fontSize: 12,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.2,
-          color: Color(0xFF434653), // text-on-surface-variant
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
     );
@@ -304,18 +310,12 @@ class _SettingsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC3C6D5).withOpacity(0.3)), // outline-variant at 15% opacity? roughly
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 1),
-          ),
-        ],
+        border: Border.all(color: cs.outline.withOpacity(0.3)),
       ),
       child: Column(
         children: children,
@@ -343,6 +343,7 @@ class _SettingsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -350,12 +351,12 @@ class _SettingsRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
         decoration: BoxDecoration(
           border: showBorder
-              ? const Border(bottom: BorderSide(color: Color(0xFFF5F3F4))) // surface-container-low
+              ? Border(bottom: BorderSide(color: cs.surfaceContainerHigh))
               : null,
         ),
         child: Row(
           children: [
-            Icon(icon, color: const Color(0xFF434653)),
+            Icon(icon, color: cs.onSurfaceVariant),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -363,20 +364,20 @@ class _SettingsRow extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF1B1C1D),
+                      color: cs.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 14,
-                      color: Color(0xFF434653), // text-on-surface-variant
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
                 ],

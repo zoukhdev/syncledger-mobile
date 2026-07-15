@@ -87,7 +87,63 @@ class _InvoiceFormDialogState extends State<InvoiceFormDialog> {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a contract and a phase.')));
         return;
       }
+
+      // ── Duplicate detection (only on create, not edit) ──────────────────────
+      if (widget.invoice == null) {
+        try {
+          final amount = double.parse(_amountController.text);
+          final vendor = _vendorController.text.trim();
+          final dateFrom = _invoiceDate.subtract(const Duration(days: 3)).toIso8601String();
+          final dateTo = _invoiceDate.add(const Duration(days: 3)).toIso8601String();
+
+          final duplicates = await Supabase.instance.client
+              .from('invoices')
+              .select('id, invoice_date, amount, vendor_name')
+              .eq('vendor_name', vendor)
+              .eq('amount', amount)
+              .gte('invoice_date', dateFrom)
+              .lte('invoice_date', dateTo);
+
+          if (duplicates.isNotEmpty && mounted) {
+            final proceed = await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                backgroundColor: Theme.of(ctx).colorScheme.surfaceContainerLowest,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                title: Row(children: [
+                  Icon(Icons.warning_amber_rounded, color: Theme.of(ctx).colorScheme.error, size: 24),
+                  const SizedBox(width: 10),
+                  const Text('Possible Duplicate', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+                ]),
+                content: Text(
+                  'A similar invoice already exists:\n\n'
+                  '• Vendor: $vendor\n'
+                  '• Amount: ${amount.toStringAsFixed(2)} DZD\n'
+                  '• Within ±3 days of selected date\n\n'
+                  'Do you want to create it anyway?',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: const Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    style: ElevatedButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error, foregroundColor: Colors.white),
+                    child: const Text('Create Anyway'),
+                  ),
+                ],
+              ),
+            );
+            if (proceed != true) return;
+          }
+        } catch (_) {
+          // Silently skip duplicate check on error — don't block user
+        }
+      }
+
       setState(() => _isLoading = true);
+
 
       try {
         final Map<String, dynamic> data = {

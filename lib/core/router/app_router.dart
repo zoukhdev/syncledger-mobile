@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/auth/presentation/pages/auth_screen.dart';
 import '../../features/auth/presentation/pages/change_password_screen.dart';
 import '../../features/invoices/presentation/pages/invoices_page.dart';
@@ -17,6 +18,8 @@ import '../../features/caisse/presentation/pages/caisse_page.dart';
 import '../../features/purchase_orders/presentation/pages/purchase_orders_page.dart';
 import '../../features/purchase_orders/presentation/pages/purchase_order_detail_page.dart';
 import '../../features/analytics/presentation/pages/analytics_page.dart';
+import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/search/presentation/pages/search_page.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -25,7 +28,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: '/',
+    redirect: (context, state) async {
+      // Show onboarding on first launch
+      final prefs = await SharedPreferences.getInstance();
+      final done = prefs.getBool('onboarding_complete') ?? false;
+      if (!done && state.matchedLocation != '/onboarding') {
+        return '/onboarding';
+      }
+      return null;
+    },
     routes: [
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingPage(),
+      ),
+      GoRoute(
+        path: '/search',
+        builder: (context, state) => const SearchPage(),
+      ),
       GoRoute(
         path: '/',
         builder: (context, state) => const AuthScreen(),

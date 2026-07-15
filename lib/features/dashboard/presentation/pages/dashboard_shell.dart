@@ -63,6 +63,11 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search_rounded, color: Color(0xFF1E293B)),
+            tooltip: 'Search',
+            onPressed: () => context.push('/search'),
+          ),
           Consumer(
             builder: (context, ref, child) {
               final currentLocale = ref.watch(localeProvider).languageCode;

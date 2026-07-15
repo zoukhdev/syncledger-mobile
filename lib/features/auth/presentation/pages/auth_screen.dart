@@ -7,6 +7,8 @@ import 'package:local_auth/local_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/foundation.dart';
 import '../../providers/auth_provider.dart';
+import 'mfa_verify_page.dart';
+
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -167,36 +169,53 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         password: password,
       );
       
-      if (response.session != null) {
-        final prefs = await SharedPreferences.getInstance();
-        if (_rememberEmail) {
-          await prefs.setString('saved_email', email);
-        } else {
-          await prefs.remove('saved_email');
-        }
+        if (response.session != null) {
+          final prefs = await SharedPreferences.getInstance();
+          if (_rememberEmail) {
+            await prefs.setString('saved_email', email);
+          } else {
+            await prefs.remove('saved_email');
+          }
 
-        final user = response.user;
-        if (user != null) {
-          final profileRes = await Supabase.instance.client
-              .from('profiles')
-              .select('force_password_reset')
-              .eq('id', user.id)
-              .maybeSingle();
+          final user = response.user;
+          if (user != null) {
+            final profileRes = await Supabase.instance.client
+                .from('profiles')
+                .select('force_password_reset')
+                .eq('id', user.id)
+                .maybeSingle();
 
-          final forceReset = profileRes?['force_password_reset'] as bool? ?? false;
+            final forceReset = profileRes?['force_password_reset'] as bool? ?? false;
 
-          if (mounted) {
-            ref.read(authProvider.notifier).loadUser();
-            if (forceReset) {
-              context.go('/change-password');
-            } else {
-              // Ask for biometric setup
-              await _promptBiometricSetup(email, password);
-              if (mounted) context.go('/overview');
+            if (mounted) {
+              ref.read(authProvider.notifier).loadUser();
+              if (forceReset) {
+                context.go('/change-password');
+              } else {
+                // Check if MFA is enrolled and required
+                try {
+                  final factors = await Supabase.instance.client.auth.mfa.listFactors();
+                  final hasTotp = factors.totp.isNotEmpty;
+                  if (hasTotp && mounted) {
+                    final verified = await Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MfaVerifyPage()),
+                    );
+                    if (verified != true) {
+                      await Supabase.instance.client.auth.signOut();
+                      return;
+                    }
+                  }
+                } catch (_) {
+                  // If MFA check fails silently, proceed normally
+                }
+                // Ask for biometric setup
+                await _promptBiometricSetup(email, password);
+                if (mounted) context.go('/overview');
+              }
             }
           }
         }
-      }
     } on AuthException catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
