@@ -69,10 +69,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/analytics',
         builder: (context, state) => const AnalyticsPage(),
       ),
-      GoRoute(
-        path: '/caisse',
-        builder: (context, state) => const CaissePage(),
-      ),
+
       StatefulShellRoute(
         builder: (context, state, navigationShell) {
           return navigationShell;
@@ -110,6 +107,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/vendors',
                 builder: (context, state) => const VendorsPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/caisse',
+                builder: (context, state) => const CaissePage(),
               ),
             ],
           ),

@@ -6,6 +6,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import '../../../auth/providers/auth_provider.dart';
+import '../../../../core/localization/locale_provider.dart';
 
 class ClientsPage extends ConsumerWidget {
   const ClientsPage({super.key});
@@ -45,42 +47,78 @@ class ClientsPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFFF9FAFB),
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.search, color: Colors.black87),
-          onPressed: () {
-            // Placeholder for search action
-          },
+        title: const Text(
+          'Equinox',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            letterSpacing: -0.5,
+            color: Color(0xFF1E293B),
+          ),
         ),
         actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.black87),
-            onSelected: (value) {
-              if (value == 'export') {
-                _exportCsv(context, ref);
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem<String>(
-                  value: 'export',
-                  child: Text(t?.exportDirectory ?? 'Export CSV'),
+          Consumer(
+            builder: (context, ref, child) {
+              final currentLocale = ref.watch(localeProvider).languageCode;
+              return DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: currentLocale,
+                  icon: const Icon(Icons.language, color: Color(0xFF1E293B)),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1E293B),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'fr', child: Text('FR')),
+                    DropdownMenuItem(value: 'en', child: Text('EN')),
+                    DropdownMenuItem(value: 'ar', child: Text('AR')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      ref.read(localeProvider.notifier).setLocale(val);
+                    }
+                  },
                 ),
-              ];
-            },
+              );
+            }
           ),
-          const Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              backgroundColor: Color(0xFFE5E7EB),
-              backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=11'), // Placeholder avatar
+          const SizedBox(width: 16),
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0),
+            child: Consumer(
+              builder: (context, ref, child) {
+                final userState = ref.watch(authProvider);
+                return Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9), // Light blue-grey background
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    userState.value?.fullName.substring(0, 1).toUpperCase() ?? 'U',
+                    style: const TextStyle(
+                      color: Color(0xFF3366CC),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                );
+              }
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF0052CC),
-        shape: const CircleBorder(),
-        tooltip: t?.addContractor ?? 'Add Contractor',
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: FloatingActionButton(
+          backgroundColor: const Color(0xFF3366CC),
+          shape: const CircleBorder(),
+          elevation: 4,
+          tooltip: t?.addContractor ?? 'Add Contractor',
         onPressed: () {
           showModalBottomSheet(
             context: context,

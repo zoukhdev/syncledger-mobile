@@ -110,24 +110,41 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  width: 64,
+                  height: 64,
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(16),
+                    color: const Color(0xFF1B1C1D), // on-background
+                    borderRadius: BorderRadius.circular(12),
                   ),
+                  alignment: Alignment.center,
                   child: Text(
-                    userState.value?.fullName.substring(0, 1).toUpperCase() ?? 'U',
-                    style: TextStyle(color: theme.colorScheme.onPrimaryContainer, fontSize: 28, fontWeight: FontWeight.bold),
+                    userState.value?.fullName.substring(0, 1).toUpperCase() ?? 'Z',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  userState.value?.fullName ?? 'User',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  userState.value?.fullName ?? 'zoukh own',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1B1C1D),
+                    letterSpacing: -0.5,
+                  ),
                 ),
+                const SizedBox(height: 4),
                 Text(
-                  (userState.value?.role ?? 'staff').toUpperCase(),
-                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.w600),
+                  (userState.value?.role ?? 'OWNER').toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.5,
+                    color: Color(0xFF737784), // outline color
+                  ),
                 ),
               ],
             ),
@@ -198,34 +215,50 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
         index: widget.navigationShell.currentIndex,
         children: widget.children,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: widget.navigationShell.currentIndex,
-        onTap: (index) => _onTap(context, index),
-        backgroundColor: theme.colorScheme.surface,
-        selectedItemColor: const Color(0xFF1976D2), // Professional blue
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.space_dashboard_outlined),
-            activeIcon: const Icon(Icons.space_dashboard),
-            label: AppLocalizations.of(context)?.overview ?? 'Overview',
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(top: BorderSide(color: Color(0xFFF3F4F6), width: 1)),
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.receipt_long_outlined),
-            activeIcon: const Icon(Icons.receipt_long),
-            label: AppLocalizations.of(context)?.invoices ?? 'Invoices',
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildNavItem(context, 0, Icons.dashboard_outlined, Icons.dashboard, AppLocalizations.of(context)?.overview ?? 'Overview'),
+              _buildNavItem(context, 1, Icons.receipt_long_outlined, Icons.receipt_long, AppLocalizations.of(context)?.invoices ?? 'Invoices'),
+              _buildNavItem(context, 2, Icons.group_outlined, Icons.group, AppLocalizations.of(context)?.clients ?? 'Contractors'),
+              _buildNavItem(context, 3, Icons.storefront_outlined, Icons.storefront, AppLocalizations.of(context)?.vendors ?? 'Vendors'),
+              _buildNavItem(context, 4, Icons.archive_outlined, Icons.archive, AppLocalizations.of(context)?.caisse ?? 'Caisse'),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.people_alt_outlined),
-            activeIcon: const Icon(Icons.people_alt),
-            label: AppLocalizations.of(context)?.clients ?? 'Contractors',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(BuildContext context, int index, IconData iconOutlined, IconData iconFilled, String label) {
+    final isSelected = widget.navigationShell.currentIndex == index;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _onTap(context, index),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isSelected ? iconFilled : iconOutlined,
+            color: isSelected ? const Color(0xFF3366CC) : const Color(0xFF64748B),
+            size: 28,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.storefront_outlined),
-            activeIcon: const Icon(Icons.storefront),
-            label: AppLocalizations.of(context)?.vendors ?? 'Vendors',
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              letterSpacing: 0.2,
+              color: isSelected ? const Color(0xFF3366CC) : const Color(0xFF64748B),
+            ),
           ),
         ],
       ),
