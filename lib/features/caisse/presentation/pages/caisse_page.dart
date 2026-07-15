@@ -41,75 +41,212 @@ class _CaissePageState extends ConsumerState<CaissePage> {
 
     await showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('New Cash Transaction'),
-        content: StatefulBuilder(
-          builder: (context, setState) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: StatefulBuilder(
+            builder: (context, setState) => Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: RadioListTile<String>(
-                      title: const Text('IN'),
-                      value: 'in',
-                      groupValue: type,
-                      onChanged: (val) => setState(() => type = val!),
+                  const Text(
+                    'New Cash Transaction',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1B1C1D),
                     ),
                   ),
-                  Expanded(
-                    child: RadioListTile<String>(
-                      title: const Text('OUT'),
-                      value: 'out',
-                      groupValue: type,
-                      onChanged: (val) => setState(() => type = val!),
+                  const SizedBox(height: 24),
+                  
+                  // Segmented Control
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F3F4), // surface-container-low
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => type = 'in'),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              decoration: BoxDecoration(
+                                color: type == 'in' ? const Color(0xFF094CB2) : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: type == 'in' ? [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  )
+                                ] : null,
+                              ),
+                              child: Text(
+                                'IN',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: type == 'in' ? FontWeight.bold : FontWeight.w500,
+                                  color: type == 'in' ? Colors.white : const Color(0xFF434653),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => type = 'out'),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              decoration: BoxDecoration(
+                                color: type == 'out' ? const Color(0xFF094CB2) : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: type == 'out' ? [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  )
+                                ] : null,
+                              ),
+                              child: Text(
+                                'OUT',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: type == 'out' ? FontWeight.bold : FontWeight.w500,
+                                  color: type == 'out' ? Colors.white : const Color(0xFF434653),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Amount
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4.0, bottom: 4.0),
+                    child: Text('Amount (DZD)', style: TextStyle(fontSize: 12, color: Color(0xFF434653))),
+                  ),
+                  TextField(
+                    controller: amountController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    style: const TextStyle(fontSize: 18, color: Color(0xFF1B1C1D)),
+                    decoration: InputDecoration(
+                      hintText: '0.00',
+                      hintStyle: const TextStyle(color: Color(0xFF737784)),
+                      suffixText: 'DZD',
+                      suffixStyle: const TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF434653)),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFC3C6D5)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFF094CB2), width: 1.5),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Description
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4.0, bottom: 4.0),
+                    child: Text('Description (Optional)', style: TextStyle(fontSize: 12, color: Color(0xFF434653))),
+                  ),
+                  TextField(
+                    controller: descriptionController,
+                    maxLines: 3,
+                    style: const TextStyle(color: Color(0xFF1B1C1D)),
+                    decoration: InputDecoration(
+                      hintText: 'Enter transaction details...',
+                      hintStyle: const TextStyle(color: Color(0xFF737784)),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFC3C6D5)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFF094CB2), width: 1.5),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  // Actions
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                          foregroundColor: const Color(0xFF434653),
+                        ),
+                        child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w600)),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final amt = double.tryParse(amountController.text);
+                          if (amt == null || amt <= 0) return;
+
+                          // 1. Insert Tx
+                          await Supabase.instance.client.from('cash_transactions').insert({
+                            'register_id': registerId,
+                            'transaction_type': type,
+                            'amount': amt,
+                            'description': descriptionController.text,
+                          });
+
+                          // 2. Update balance
+                          final currentReg = await Supabase.instance.client
+                              .from('cash_registers')
+                              .select('balance')
+                              .eq('id', registerId)
+                              .single();
+
+                          final newBal = type == 'in' ? currentReg['balance'] + amt : currentReg['balance'] - amt;
+                          await Supabase.instance.client.from('cash_registers').update({'balance': newBal}).eq('id', registerId);
+
+                          ref.refresh(caisseProvider);
+                          if (ctx.mounted) Navigator.pop(ctx);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF094CB2),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 0,
+                        ),
+                        child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              TextField(
-                controller: amountController,
-                decoration: const InputDecoration(labelText: 'Amount (DZD)'),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                controller: descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-              ),
-            ],
+            ),
           ),
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () async {
-              final amt = double.tryParse(amountController.text);
-              if (amt == null || descriptionController.text.isEmpty) return;
-
-              // 1. Insert Tx
-              await Supabase.instance.client.from('cash_transactions').insert({
-                'register_id': registerId,
-                'transaction_type': type,
-                'amount': amt,
-                'description': descriptionController.text,
-              });
-
-              // 2. Update balance
-              final currentReg = await Supabase.instance.client
-                  .from('cash_registers')
-                  .select('balance')
-                  .eq('id', registerId)
-                  .single();
-
-              final newBal = type == 'in' ? currentReg['balance'] + amt : currentReg['balance'] - amt;
-              await Supabase.instance.client.from('cash_registers').update({'balance': newBal}).eq('id', registerId);
-
-              ref.refresh(caisseProvider);
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            child: const Text('Save'),
-          ),
-        ],
       ),
     );
   }
