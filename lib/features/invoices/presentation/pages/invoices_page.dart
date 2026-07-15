@@ -151,26 +151,6 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
       autofocus: true,
       child: Scaffold(
         backgroundColor: const Color(0xFFF9FAFB),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFFF9FAFB),
-          elevation: 0,
-          title: Row(
-            children: [
-              const Text('Equinox', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-              const SizedBox(width: 16),
-              Text(l10n?.ledger ?? 'Ledger', style: const TextStyle(color: Colors.black54)),
-            ],
-          ),
-          actions: const [
-            Padding(
-              padding: EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(
-                backgroundColor: Color(0xFF0052CC),
-                child: Icon(Icons.person, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
         body: invoicesAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (err, stack) => Center(child: Text('Error: $err')),

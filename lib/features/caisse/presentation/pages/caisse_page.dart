@@ -171,36 +171,22 @@ class _CaissePageState extends ConsumerState<CaissePage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFFAF9FA),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFAF9FA),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF434653)),
-          onPressed: () => Navigator.pop(context),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: FloatingActionButton(
+          backgroundColor: const Color(0xFF3366CC),
+          shape: const CircleBorder(),
+          elevation: 4,
+          onPressed: () {
+            asyncData.whenData((data) {
+              final registers = data['registers'] as List<dynamic>;
+              if (registers.isNotEmpty) {
+                 _showAddTransactionDialog(context, registers.first['id']);
+              }
+            });
+          },
+          child: const Icon(Icons.add, color: Colors.white, size: 28),
         ),
-        title: const Text(
-          'Cash Registers',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            letterSpacing: -0.5,
-            color: Color(0xFF1B1C1D),
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF094CB2), // Primary
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        onPressed: () {
-          asyncData.whenData((data) {
-            final registers = data['registers'] as List<dynamic>;
-            if (registers.isNotEmpty) {
-               _showAddTransactionDialog(context, registers.first['id']);
-            }
-          });
-        },
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
       body: asyncData.when(
         loading: () => const Center(child: CircularProgressIndicator()),
