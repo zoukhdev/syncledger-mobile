@@ -14,41 +14,42 @@ class StatusBadge extends StatelessWidget {
       case 'pending_approval':
       case 'pending_payment':
       case 'pending_review':
-        bgColor = AppTheme.zinc300;
-        textColor = AppTheme.zinc900;
+        bgColor = AppTheme.orange.withOpacity(0.12);
+        textColor = AppTheme.orange;
         break;
       case 'approved':
       case 'paid':
-        bgColor = AppTheme.success.withOpacity(0.2);
-        textColor = AppTheme.success;
+        bgColor = AppTheme.emerald.withOpacity(0.12);
+        textColor = AppTheme.emerald;
         break;
       case 'draft':
-        bgColor = AppTheme.zinc200;
-        textColor = AppTheme.zinc800;
+        bgColor = AppTheme.surfaceContainerHigh;
+        textColor = AppTheme.onSurfaceVariant;
         break;
       case 'rejected':
       case 'overdue':
       case 'cancelled':
-        bgColor = AppTheme.danger.withOpacity(0.2);
-        textColor = AppTheme.danger;
+        bgColor = AppTheme.error.withOpacity(0.12);
+        textColor = AppTheme.error;
         break;
       default:
-        bgColor = AppTheme.zinc200;
-        textColor = AppTheme.zinc800;
+        bgColor = AppTheme.surfaceContainer;
+        textColor = AppTheme.onSurfaceVariant;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(999), // pill shape
       ),
       child: Text(
         status.toUpperCase().replaceAll('_', ' '),
         style: TextStyle(
           color: textColor,
           fontSize: 10,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
         ),
       ),
     );
