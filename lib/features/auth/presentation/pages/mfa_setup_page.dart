@@ -33,6 +33,12 @@ class _MfaSetupPageState extends State<MfaSetupPage> {
   Future<void> _enroll() async {
     setState(() => _isEnrolling = true);
     try {
+      final factors = await Supabase.instance.client.auth.mfa.listFactors();
+      if (factors.totp.isNotEmpty) {
+        final existingFactor = factors.totp.first;
+        await Supabase.instance.client.auth.mfa.unenroll(existingFactor.id);
+      }
+
       final res = await Supabase.instance.client.auth.mfa.enroll(
         factorType: FactorType.totp,
         issuer: 'SyncLedger',
