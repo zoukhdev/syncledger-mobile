@@ -216,6 +216,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     }
   }
 
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3F4), // surface-container-low
       body: Center(

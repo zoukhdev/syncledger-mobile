@@ -131,6 +131,7 @@ class VendorsPage extends ConsumerWidget {
         },
         child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
+      ),
       body: const DirectoryListView(table: 'vendors', title: 'Vendors'),
     );
   }

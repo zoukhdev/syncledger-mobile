@@ -119,9 +119,9 @@ class ClientsPage extends ConsumerWidget {
           shape: const CircleBorder(),
           elevation: 4,
           tooltip: t?.addContractor ?? 'Add Contractor',
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
             isScrollControlled: true,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -130,6 +130,7 @@ class ClientsPage extends ConsumerWidget {
           );
         },
         child: const Icon(Icons.add, color: Colors.white, size: 28),
+      ),
       ),
       body: const DirectoryListView(table: 'contractors', title: 'Contractors'),
     );
