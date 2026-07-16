@@ -373,7 +373,7 @@ class OverviewPage extends ConsumerWidget {
               Expanded(
                 child: Text(
                   '${value.toStringAsFixed(2)} DZD', 
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 24,
                     letterSpacing: -0.5,

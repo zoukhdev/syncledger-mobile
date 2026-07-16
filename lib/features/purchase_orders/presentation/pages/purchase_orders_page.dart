@@ -22,9 +22,9 @@ class PurchaseOrdersPage extends ConsumerWidget {
         leading: BackButton(color: Theme.of(context).colorScheme.onSurface),
         title: Text(
           l10n.purchaseOrders,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w700,
-            fontSize: 24,
+            fontSize: 20,
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
@@ -144,7 +144,7 @@ class PurchaseOrderCard extends StatelessWidget {
               children: [
                 Text(
                   po.poNumber,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                     color: Theme.of(context).colorScheme.onSurface,

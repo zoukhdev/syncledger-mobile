@@ -18,11 +18,11 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: BackButton(color: Theme.of(context).colorScheme.onSurface),
-        title: const Text(
+        title: Text(
           'Purchase Order Details',
           style: TextStyle(
             fontWeight: FontWeight.w700,
-            fontSize: 18,
+            fontSize: 20,
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
@@ -137,11 +137,11 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              const Text(
+              Text(
                 'Line Items',
                 style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),

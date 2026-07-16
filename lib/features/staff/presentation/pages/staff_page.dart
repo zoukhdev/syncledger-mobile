@@ -81,7 +81,7 @@ class _StaffPageState extends ConsumerState<StaffPage> {
         leading: BackButton(color: Theme.of(context).colorScheme.onSurface),
         title: Text(
           t?.staffDirectory ?? 'Staff Directory',
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Theme.of(context).colorScheme.onSurface,
