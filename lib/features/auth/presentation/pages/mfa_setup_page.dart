@@ -53,14 +53,19 @@ class _MfaSetupPageState extends State<MfaSetupPage> {
       final allFactors = factorsRes.all;
       for (final f in allFactors) {
         if (f.status == FactorStatus.unverified) {
-           await Supabase.instance.client.auth.mfa.unenroll(f.id);
+           try {
+             await Supabase.instance.client.auth.mfa.unenroll(f.id);
+           } catch (_) {
+             // Ignore unenroll errors and proceed
+           }
         }
       }
 
+      final uniqueName = 'SyncLedger Mobile ${DateTime.now().millisecondsSinceEpoch}';
       final res = await Supabase.instance.client.auth.mfa.enroll(
         factorType: FactorType.totp,
         issuer: 'SyncLedger',
-        friendlyName: 'SyncLedger Auth',
+        friendlyName: uniqueName,
       );
       final challenge = await Supabase.instance.client.auth.mfa.challenge(factorId: res.id);
       if (mounted) {
