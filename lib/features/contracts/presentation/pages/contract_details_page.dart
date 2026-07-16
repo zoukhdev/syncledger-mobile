@@ -34,7 +34,7 @@ class _ContractDetailsPageState extends ConsumerState<ContractDetailsPage> with 
   }
 
   Future<void> _uploadDocument() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg'],
     );
@@ -103,7 +103,7 @@ class _ContractDetailsPageState extends ConsumerState<ContractDetailsPage> with 
       backgroundColor: cs.surface,
       appBar: AppBar(
         backgroundColor: cs.surface,
-        title: Text(currentContract.title, style: TextStyle(color: cs.onSurface)),
+        title: Text(currentContract.contractTitle, style: TextStyle(color: cs.onSurface)),
         iconTheme: IconThemeData(color: cs.onSurface),
         bottom: TabBar(
           controller: _tabController,
@@ -203,7 +203,7 @@ class _ContractDetailsPageState extends ConsumerState<ContractDetailsPage> with 
       ),
       child: Column(
         children: [
-          _buildDetailRow(cs, 'Title', contract.title),
+          _buildDetailRow(cs, 'Title', contract.contractTitle),
           const Divider(height: 32),
           _buildDetailRow(cs, 'Contractor', contract.contractorName ?? 'N/A'),
           const Divider(height: 32),

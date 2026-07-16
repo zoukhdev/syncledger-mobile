@@ -19,7 +19,7 @@ class PurchaseOrdersPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFFF8F9FB),
         elevation: 0,
-        leading: const BackButton(color: Theme.of(context).colorScheme.onSurface),
+        leading: BackButton(color: Theme.of(context).colorScheme.onSurface),
         title: Text(
           l10n.purchaseOrders,
           style: const TextStyle(
@@ -30,7 +30,7 @@ class PurchaseOrdersPage extends ConsumerWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.tune, color: Theme.of(context).colorScheme.onSurface),
+            icon: Icon(Icons.tune, color: Theme.of(context).colorScheme.onSurface),
             onPressed: () {},
           ),
         ],

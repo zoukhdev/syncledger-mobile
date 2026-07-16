@@ -17,7 +17,7 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const BackButton(color: Theme.of(context).colorScheme.onSurface),
+        leading: BackButton(color: Theme.of(context).colorScheme.onSurface),
         title: const Text(
           'Purchase Order Details',
           style: TextStyle(
@@ -179,10 +179,7 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
                             children: [
                               Text(
                                 item['description'] ?? 'No Description',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.onSurface,
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(height: 4),

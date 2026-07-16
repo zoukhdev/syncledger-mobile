@@ -473,7 +473,7 @@ class InvoiceCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   clientName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,

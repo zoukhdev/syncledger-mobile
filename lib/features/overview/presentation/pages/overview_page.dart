@@ -344,7 +344,7 @@ class OverviewPage extends ConsumerWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: Theme.of(context).colorScheme.onSurface12, blurRadius: 10, offset: Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.12), blurRadius: 10, offset: Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -410,10 +410,10 @@ class OverviewPage extends ConsumerWidget {
             final contract = contracts[index];
             return ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.description_outlined, color: Theme.of(context).colorScheme.onSurface),
+              leading: Icon(Icons.description_outlined, color: Theme.of(context).colorScheme.onSurface),
               title: RichText(
                 text: TextSpan(
-                  style: const TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
                   children: [
                     TextSpan(text: '${contract.contractTitle} ', style: const TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(text: '• ${contract.contractorName ?? (t?.unknownVendor ?? 'Unknown')} • '),
@@ -421,7 +421,7 @@ class OverviewPage extends ConsumerWidget {
                   ],
                 ),
               ),
-              trailing: const Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
               onTap: () {
                 context.push('/contracts');
               },

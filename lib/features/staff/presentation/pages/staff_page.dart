@@ -78,7 +78,7 @@ class _StaffPageState extends ConsumerState<StaffPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const BackButton(color: Theme.of(context).colorScheme.onSurface),
+        leading: BackButton(color: Theme.of(context).colorScheme.onSurface),
         title: Text(
           t?.staffDirectory ?? 'Staff Directory',
           style: const TextStyle(
@@ -89,7 +89,7 @@ class _StaffPageState extends ConsumerState<StaffPage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Theme.of(context).colorScheme.onSurface),
+            icon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurface),
             onPressed: () {}, // Searching is implemented inline below
           ),
         ],
@@ -384,7 +384,7 @@ class StaffMemberCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            const Divider(height: 32, color: Theme.of(context).colorScheme.surfaceContainer, thickness: 1),
+            Divider(height: 32, color: Theme.of(context).colorScheme.surfaceContainer, thickness: 1),
             Row(
               children: [
                 Expanded(child: _buildStat('INVOICES', staff['invoices_count'] ?? 0)),
