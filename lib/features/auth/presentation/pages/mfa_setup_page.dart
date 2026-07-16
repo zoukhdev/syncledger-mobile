@@ -13,6 +13,7 @@ class _MfaSetupPageState extends State<MfaSetupPage> {
   final _codeController = TextEditingController();
   bool _isEnrolling = true;
   bool _isVerifying = false;
+  bool _alreadyEnrolled = false;
   String? _error;
   String? _qrUri;
   String? _factorId;
@@ -21,7 +22,7 @@ class _MfaSetupPageState extends State<MfaSetupPage> {
   @override
   void initState() {
     super.initState();
-    _enroll();
+    _checkOrEnroll();
   }
 
   @override
@@ -30,18 +31,36 @@ class _MfaSetupPageState extends State<MfaSetupPage> {
     super.dispose();
   }
 
-  Future<void> _enroll() async {
-    setState(() => _isEnrolling = true);
+  Future<void> _checkOrEnroll() async {
+    setState(() {
+      _isEnrolling = true;
+      _error = null;
+    });
     try {
-      final factors = await Supabase.instance.client.auth.mfa.listFactors();
-      if (factors.totp.isNotEmpty) {
-        final existingFactor = factors.totp.first;
-        await Supabase.instance.client.auth.mfa.unenroll(existingFactor.id);
+      final factorsRes = await Supabase.instance.client.auth.mfa.listFactors();
+      if (factorsRes.totp.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            _alreadyEnrolled = true;
+            _factorId = factorsRes.totp.first.id;
+            _isEnrolling = false;
+          });
+        }
+        return;
+      }
+      
+      // Try to unenroll any orphaned factors that might cause naming conflicts
+      final allFactors = factorsRes.all;
+      for (final f in allFactors) {
+        if (f.status == FactorStatus.unverified) {
+           await Supabase.instance.client.auth.mfa.unenroll(f.id);
+        }
       }
 
       final res = await Supabase.instance.client.auth.mfa.enroll(
         factorType: FactorType.totp,
         issuer: 'SyncLedger',
+        friendlyName: 'SyncLedger Auth',
       );
       final challenge = await Supabase.instance.client.auth.mfa.challenge(factorId: res.id);
       if (mounted) {
@@ -54,6 +73,23 @@ class _MfaSetupPageState extends State<MfaSetupPage> {
       }
     } catch (e) {
       if (mounted) setState(() { _error = e.toString(); _isEnrolling = false; });
+    }
+  }
+
+  Future<void> _unenroll() async {
+    if (_factorId == null) return;
+    setState(() => _isEnrolling = true);
+    try {
+      await Supabase.instance.client.auth.mfa.unenroll(_factorId!);
+      if (mounted) {
+         setState(() {
+           _alreadyEnrolled = false;
+           _factorId = null;
+         });
+         await _checkOrEnroll();
+      }
+    } catch (e) {
+      if (mounted) setState(() { _error = 'Failed to disable 2FA. $e'; _isEnrolling = false; });
     }
   }
 
@@ -101,6 +137,38 @@ class _MfaSetupPageState extends State<MfaSetupPage> {
       body: SafeArea(
         child: _isEnrolling
             ? const Center(child: CircularProgressIndicator())
+            : _alreadyEnrolled
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 80, height: 80,
+                            decoration: BoxDecoration(color: cs.primaryContainer, shape: BoxShape.circle),
+                            child: Icon(Icons.shield_rounded, size: 40, color: cs.primary),
+                          ),
+                          const SizedBox(height: 24),
+                          Text('2FA is Enabled', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: cs.onSurface)),
+                          const SizedBox(height: 12),
+                          Text('Your account is secured with two-factor authentication.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 16)),
+                          const SizedBox(height: 40),
+                          OutlinedButton.icon(
+                            onPressed: _unenroll,
+                            icon: Icon(Icons.delete_outline, color: cs.error),
+                            label: Text('Disable 2FA', style: TextStyle(color: cs.error)),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              side: BorderSide(color: cs.error.withOpacity(0.5)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
             : _error != null && _qrUri == null
                 ? Center(child: Padding(
                     padding: const EdgeInsets.all(32),
@@ -109,7 +177,7 @@ class _MfaSetupPageState extends State<MfaSetupPage> {
                       const SizedBox(height: 16),
                       Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: cs.error)),
                       const SizedBox(height: 24),
-                      ElevatedButton(onPressed: _enroll, child: const Text('Retry')),
+                      ElevatedButton(onPressed: _checkOrEnroll, child: const Text('Retry')),
                     ]),
                   ))
                 : SingleChildScrollView(
