@@ -154,4 +154,11 @@
   "revenue": "Revenu",
   "expense": "Dépense",
   "unknown": "Inconnu"
+,
+  "searchLogs": "Rechercher des journaux...",
+  "details": "Détails",
+  "phases": "Phases",
+  "contractDocument": "Document de contrat",
+  "viewFullDocument": "Voir le document complet",
+  "mfaSetup": "Configuration MFA"
 }

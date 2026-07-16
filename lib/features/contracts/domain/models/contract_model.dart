@@ -4,6 +4,7 @@ class ContractModel {
   final double totalAmount;
   final String? status;
   final String? contractorName;
+  final String? documentUrl;
 
   ContractModel({
     required this.id,
@@ -11,6 +12,7 @@ class ContractModel {
     required this.totalAmount,
     this.status,
     this.contractorName,
+    this.documentUrl,
   });
 
   factory ContractModel.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class ContractModel {
       totalAmount: (json['total_amount'] as num).toDouble(),
       status: json['status'] as String?,
       contractorName: json['contractors'] != null ? json['contractors']['company_name'] as String? : null,
+      documentUrl: json['document_url'] as String?,
     );
   }
 }

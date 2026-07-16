@@ -19,18 +19,18 @@ class PurchaseOrdersPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFFF8F9FB),
         elevation: 0,
-        leading: const BackButton(color: Color(0xFF111827)),
+        leading: const BackButton(color: Theme.of(context).colorScheme.onSurface),
         title: Text(
           l10n.purchaseOrders,
           style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 24,
-            color: Color(0xFF111827),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.tune, color: Color(0xFF111827)),
+            icon: const Icon(Icons.tune, color: Theme.of(context).colorScheme.onSurface),
             onPressed: () {},
           ),
         ],
@@ -131,7 +131,7 @@ class PurchaseOrderCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -147,7 +147,7 @@ class PurchaseOrderCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111827),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const Spacer(),

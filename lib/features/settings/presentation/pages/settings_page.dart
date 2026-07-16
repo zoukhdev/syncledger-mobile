@@ -28,7 +28,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         bool isLoading = false;
         return StatefulBuilder(
           builder: (ctx, setDialogState) => AlertDialog(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             title: const Text('Change Password', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold)),
             content: Column(

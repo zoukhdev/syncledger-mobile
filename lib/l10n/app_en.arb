@@ -165,4 +165,11 @@
   "revenue": "Revenue",
   "expense": "Expense",
   "unknown": "Unknown"
+,
+  "searchLogs": "Search logs...",
+  "details": "Details",
+  "phases": "Phases",
+  "contractDocument": "Contract Document",
+  "viewFullDocument": "View Full Document",
+  "mfaSetup": "MFA Setup"
 }

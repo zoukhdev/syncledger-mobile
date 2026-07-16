@@ -78,18 +78,18 @@ class _StaffPageState extends ConsumerState<StaffPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const BackButton(color: Color(0xFF111827)),
+        leading: const BackButton(color: Theme.of(context).colorScheme.onSurface),
         title: Text(
           t?.staffDirectory ?? 'Staff Directory',
           style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
-            color: Color(0xFF111827),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Color(0xFF111827)),
+            icon: const Icon(Icons.search, color: Theme.of(context).colorScheme.onSurface),
             onPressed: () {}, // Searching is implemented inline below
           ),
         ],
@@ -177,7 +177,7 @@ class _StaffPageState extends ConsumerState<StaffPage> {
         }
       },
       selectedColor: const Color(0xFF0F172A),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       labelStyle: TextStyle(
         color: isSelected ? Colors.white : const Color(0xFF6B7280),
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -288,7 +288,7 @@ class StaffMemberCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.04),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -384,13 +384,13 @@ class StaffMemberCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            const Divider(height: 32, color: Color(0xFFF3F4F6), thickness: 1),
+            const Divider(height: 32, color: Theme.of(context).colorScheme.surfaceContainer, thickness: 1),
             Row(
               children: [
                 Expanded(child: _buildStat('INVOICES', staff['invoices_count'] ?? 0)),
-                Container(width: 1, height: 32, color: const Color(0xFFF3F4F6)),
+                Container(width: 1, height: 32, color: Theme.of(context).colorScheme.surfaceContainer),
                 Expanded(child: _buildStat('PAYMENTS', staff['payments_count'] ?? 0)),
-                Container(width: 1, height: 32, color: const Color(0xFFF3F4F6)),
+                Container(width: 1, height: 32, color: Theme.of(context).colorScheme.surfaceContainer),
                 Expanded(child: _buildStat('DOCS', staff['documents_count'] ?? 0)),
               ],
             )

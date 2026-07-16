@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/contracts_provider.dart';
 import '../widgets/create_contract_dialog.dart';
 import 'contract_phases_page.dart';
+import 'contract_details_page.dart';
 
 class ContractsPage extends ConsumerStatefulWidget {
   const ContractsPage({super.key});
@@ -124,7 +125,7 @@ class _ContractsPageState extends ConsumerState<ContractsPage> {
                         amount: contract.totalAmount.toStringAsFixed(2),
                         status: 'In Progress', // Fallback status
                         onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => ContractPhasesPage(contract: contract)));
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => ContractDetailsPage(contract: contract)));
                         },
                       );
                     },

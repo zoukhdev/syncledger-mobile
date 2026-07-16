@@ -154,4 +154,11 @@
   "revenue": "الإيرادات",
   "expense": "النفقات",
   "unknown": "غير معروف"
+,
+  "searchLogs": "بحث في السجلات...",
+  "details": "تفاصيل",
+  "phases": "مراحل",
+  "contractDocument": "مستند العقد",
+  "viewFullDocument": "عرض المستند الكامل",
+  "mfaSetup": "إعداد المصادقة الثنائية"
 }

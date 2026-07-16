@@ -206,7 +206,7 @@ class _InvoicesPageState extends ConsumerState<InvoicesPage> {
                         borderRadius: BorderRadius.circular(28),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.04),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -458,7 +458,7 @@ class InvoiceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -477,7 +477,7 @@ class InvoiceCard extends StatelessWidget {
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
-                    color: Color(0xFF111827),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

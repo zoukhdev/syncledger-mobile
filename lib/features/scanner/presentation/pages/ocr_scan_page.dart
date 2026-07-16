@@ -79,7 +79,7 @@ class _OcrScanPageState extends State<OcrScanPage> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: const Text('Scan Invoice'),
         backgroundColor: Colors.transparent,
@@ -93,7 +93,7 @@ class _OcrScanPageState extends State<OcrScanPage> {
           // Overlay UI
           if (_isProcessing)
             Container(
-              color: Colors.black54,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               child: const Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

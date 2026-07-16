@@ -9,6 +9,7 @@ import 'package:file_picker/file_picker.dart';
 import '../../../scanner/presentation/pages/ocr_scan_page.dart';
 import '../providers/payments_provider.dart';
 import '../../../../domain/models/payment_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DocumentWorkspace extends ConsumerStatefulWidget {
   final InvoiceModel invoice;
@@ -133,8 +134,17 @@ class _DocumentWorkspaceState extends ConsumerState<DocumentWorkspace> {
                             const Text('DOCUMENT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF434653), letterSpacing: 0.5)),
                             const SizedBox(height: 12),
                             InkWell(
-                              onTap: widget.invoice.documentUrl != null ? () {
-                                // Real implementation would open the full document
+                              onTap: widget.invoice.documentUrl != null ? () async {
+                                final uri = Uri.parse(widget.invoice.documentUrl!);
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                } else {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Could not open document')),
+                                    );
+                                  }
+                                }
                               } : null,
                               child: Container(
                                 height: 200,

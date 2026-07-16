@@ -17,13 +17,13 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const BackButton(color: Color(0xFF111827)),
+        leading: const BackButton(color: Theme.of(context).colorScheme.onSurface),
         title: const Text(
           'Purchase Order Details',
           style: TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: Color(0xFF111827),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         actions: [
@@ -63,7 +63,7 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.04),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -142,7 +142,7 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF111827),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 12),
@@ -164,7 +164,7 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.04),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -182,7 +182,7 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF111827),
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(height: 4),

@@ -43,7 +43,7 @@ class _CaissePageState extends ConsumerState<CaissePage> {
       context: context,
       builder: (ctx) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 400),
           child: StatefulBuilder(
@@ -84,7 +84,7 @@ class _CaissePageState extends ConsumerState<CaissePage> {
                                 borderRadius: BorderRadius.circular(8),
                                 boxShadow: type == 'in' ? [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                                     blurRadius: 4,
                                     offset: const Offset(0, 2),
                                   )
@@ -113,7 +113,7 @@ class _CaissePageState extends ConsumerState<CaissePage> {
                                 borderRadius: BorderRadius.circular(8),
                                 boxShadow: type == 'out' ? [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                                     blurRadius: 4,
                                     offset: const Offset(0, 2),
                                   )
